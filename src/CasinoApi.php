@@ -2,8 +2,6 @@
 
 namespace SdkGis;
 
-use PDO;
-
 /**
  * Class CasinoApi
  * @package SdkGis
@@ -12,17 +10,17 @@ class CasinoApi
 {
 
     /**
-     * @var PDO
+     * @var IClient
      */
-    private $db;
+    private $client;
 
     /**
-     * GisApi constructor.
+     * CasinoApi constructor.
+     * @param IClient $client
      */
-    public function __construct()
+    public function __construct(IClient $client)
     {
-        $dbConfig = include(__DIR__ . '/config/db.php');
-        $this->db = new PDO($dbConfig['dsn'], $dbConfig['username'], $dbConfig['password'], $dbConfig['options']);
+        $this->client = $client;
     }
 
     /**
@@ -40,6 +38,15 @@ class CasinoApi
         echo json_encode($errorData);
     }
 
+    /**
+     * Success JSON response.
+     * @param array $data
+     */
+    private function successResponse($data)
+    {
+        header('Content-type: application/json; charset=UTF-8');
+        echo json_encode($data);
+    }
 
     /**
      * Actual player's balance.
@@ -48,11 +55,24 @@ class CasinoApi
      */
     private function balance($request)
     {
-        header('Content-type: application/json; charset=UTF-8');
-        $data = [
-            'balance' => '55.55',
+        $requiredFields = [
+            'player_id',
+            'currency',
         ];
-        echo json_encode($data);
+
+        if (count(array_intersect_key(array_flip($requiredFields), $request)) === count($requiredFields)) {
+
+            $data = $this->client->balance($request);
+            $this->successResponse($data);
+
+        } else {
+
+            $errorCode = 'INTERNAL_ERROR';
+            $errorDescription = 'Required fields missing';
+            $this->errorResponse($errorCode, $errorDescription);
+
+        }
+
     }
 
     /**
@@ -62,12 +82,28 @@ class CasinoApi
      */
     private function bet($request)
     {
-        header('Content-type: application/json; charset=UTF-8');
-        $data = [
-            'balance' => '54.55',
-            'transaction_id' => '1',
+        $requiredFields = [
+            'amount',
+            'currency',
+            'gameUuid',
+            'playerId',
+            'transactionId',
+            'sessionId',
+            'type',
         ];
-        echo json_encode($data);
+
+        if (count(array_intersect_key(array_flip($requiredFields), $request)) === count($requiredFields)) {
+
+            $data = $this->client->bet($request);
+            $this->successResponse($data);
+
+        } else {
+
+            $errorCode = 'INTERNAL_ERROR';
+            $errorDescription = 'Required fields missing';
+            $this->errorResponse($errorCode, $errorDescription);
+
+        }
     }
 
     /**
@@ -77,12 +113,28 @@ class CasinoApi
      */
     private function win($request)
     {
-        header('Content-type: application/json; charset=UTF-8');
-        $data = [
-            'balance' => '56.55',
-            'transaction_id' => '2',
+        $requiredFields = [
+            'amount',
+            'currency',
+            'gameUuid',
+            'playerId',
+            'transactionId',
+            'sessionId',
+            'type',
         ];
-        echo json_encode($data);
+
+        if (count(array_intersect_key(array_flip($requiredFields), $request)) === count($requiredFields)) {
+
+            $data = $this->client->win($request);
+            $this->successResponse($data);
+
+        } else {
+
+            $errorCode = 'INTERNAL_ERROR';
+            $errorDescription = 'Required fields missing';
+            $this->errorResponse($errorCode, $errorDescription);
+
+        }
     }
 
     /**
@@ -92,12 +144,28 @@ class CasinoApi
      */
     private function refund($request)
     {
-        header('Content-type: application/json; charset=UTF-8');
-        $data = [
-            'balance' => '55.55',
-            'transaction_id' => '3',
+        $requiredFields = [
+            'amount',
+            'currency',
+            'gameUuid',
+            'playerId',
+            'transactionId',
+            'sessionId',
+            'betTransactionId',
         ];
-        echo json_encode($data);
+
+        if (count(array_intersect_key(array_flip($requiredFields), $request)) === count($requiredFields)) {
+
+            $data = $this->client->refund($request);
+            $this->successResponse($data);
+
+        } else {
+
+            $errorCode = 'INTERNAL_ERROR';
+            $errorDescription = 'Required fields missing';
+            $this->errorResponse($errorCode, $errorDescription);
+
+        }
     }
 
     /**
@@ -113,6 +181,8 @@ class CasinoApi
 
                 $request = $_REQUEST;
                 $action = $request['action'];
+                unset($request['action']);
+
                 switch ($action) {
 
                     case 'balance':
