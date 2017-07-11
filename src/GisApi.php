@@ -3,10 +3,10 @@
 namespace SdkGis;
 
 /**
- * Class GisApiClient
+ * Class GisApi
  * @package SdkGis
  */
-class GisApiClient
+class GisApi
 {
 
     /**
@@ -15,7 +15,7 @@ class GisApiClient
     private $config;
 
     /**
-     * GisApiClient constructor.
+     * GisApi constructor.
      * @param $config
      */
     public function __construct($config)
@@ -24,6 +24,7 @@ class GisApiClient
     }
 
     /**
+     * Authorization headers calculation.
      * @param array $requestParams
      * @return array
      */
@@ -48,7 +49,9 @@ class GisApiClient
     }
 
     /**
-     *
+     * GIS API
+     * method: /games
+     * @return array
      */
     public function getGames()
     {
@@ -61,12 +64,22 @@ class GisApiClient
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $gisApiOpt['connect_timeout']);
         curl_setopt($curl, CURLOPT_TIMEOUT, $gisApiOpt['timeout']);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $authHeaders);
+
+        $headers = [];
+        foreach ($authHeaders as $key => $value) {
+            $headers[] = $key . ': ' . $value;
+        }
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
         $json = curl_exec($curl);
         $result = json_decode($json, true);
 
-        print_r($result);
+        return $result;
+    }
+
+    public function initGame()
+    {
+
     }
 
 }

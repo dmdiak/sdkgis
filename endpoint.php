@@ -2,9 +2,8 @@
 
 require_once('src/GisApi.php');
 
-use SdkGis\GisApiClient;
+use SdkGis\GisApi;
 
 $config = include('src/config/config.php');
-$gisApiClient = new GisApiClient($config);
+$gisApi = new GisApi($config);
 
-$gisApiClient->getGames();
