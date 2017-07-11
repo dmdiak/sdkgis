@@ -77,6 +77,43 @@ class GisApi
         return $result;
     }
 
+    /**
+     * GIS API
+     * method: /games/lobby
+     * @param string $gameUuid
+     * @param string $currency
+     * @return array
+     */
+    public function getLobbies($gameUuid, $currency)
+    {
+        $requestParams = [
+            'game_uuid' => $gameUuid,
+            'currency' => $currency,
+        ];
+        $requestParamsStr = http_build_query($requestParams);
+
+        $authHeaders = $this->getAuthHeaders($requestParams);
+
+        $integrationData = $this->config['integration_data'];
+        $gisApiOpt = $this->config['gis_api_opt'];
+
+        $curl = curl_init($integrationData['base_api_url'] . '/games/lobby?' . $requestParamsStr);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $gisApiOpt['connect_timeout']);
+        curl_setopt($curl, CURLOPT_TIMEOUT, $gisApiOpt['timeout']);
+
+        $headers = [];
+        foreach ($authHeaders as $key => $value) {
+            $headers[] = $key . ': ' . $value;
+        }
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+        $json = curl_exec($curl);
+        $result = json_decode($json, true);
+
+        return $result;
+    }
+
     public function initGame()
     {
 
