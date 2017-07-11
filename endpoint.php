@@ -7,4 +7,4 @@ use SdkGis\GisApi;
 $config = include('src/config/config.php');
 $gisApi = new GisApi($config);
 
-var_dump($gisApi->getLimits());
+var_dump($gisApi->getJackpots());

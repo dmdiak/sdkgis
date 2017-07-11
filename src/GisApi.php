@@ -253,4 +253,34 @@ class GisApi
         return $result;
     }
 
+    /**
+     * GIS API
+     * Returns list of jackpots assigned to merchant key.
+     * Method: /jackpots
+     * @return array
+     */
+    public function getJackpots()
+    {
+        $authHeaders = $this->getAuthHeaders();
+
+        $integrationData = $this->config['integrationData'];
+        $gisApiOpt = $this->config['gisApiOpt'];
+
+        $curl = curl_init($integrationData['baseApiUrl'] . '/jackpots');
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $gisApiOpt['connectTimeout']);
+        curl_setopt($curl, CURLOPT_TIMEOUT, $gisApiOpt['timeout']);
+
+        $headers = [];
+        foreach ($authHeaders as $key => $value) {
+            $headers[] = $key . ': ' . $value;
+        }
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+        $json = curl_exec($curl);
+        $result = json_decode($json, true);
+
+        return $result;
+    }
+
 }
