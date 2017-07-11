@@ -1,11 +1,8 @@
 <?php
+require_once('src/CasinoApi.php');
 
-/*require_once('src/GisApi.php');
+use SdkGis\CasinoApi;
 
-use SdkGis\GisApi;
+$casinoApi = new CasinoApi();
 
-$gisApi = new GisApi;
-
-var_dump($gisApi->getGames());*/
-
-//
+$casinoApi->processRequest();
