@@ -16,11 +16,10 @@ class GisApi
 
     /**
      * GisApi constructor.
-     * @param $config
      */
-    public function __construct($config)
+    public function __construct()
     {
-        $this->config = $config;
+        $this->config = include(__DIR__ . '/config/config.php');
     }
 
     /**
