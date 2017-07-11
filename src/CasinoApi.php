@@ -40,6 +40,66 @@ class CasinoApi
         echo json_encode($errorData);
     }
 
+
+    /**
+     * Actual player's balance.
+     * JSON response.
+     * @param $request
+     */
+    private function balance($request)
+    {
+        header('Content-type: application/json; charset=UTF-8');
+        $data = [
+            'balance' => '55.55',
+        ];
+        echo json_encode($data);
+    }
+
+    /**
+     * Player makes a bet.
+     * JSON response.
+     * @param $request
+     */
+    private function bet($request)
+    {
+        header('Content-type: application/json; charset=UTF-8');
+        $data = [
+            'balance' => '54.55',
+            'transaction_id' => '1',
+        ];
+        echo json_encode($data);
+    }
+
+    /**
+     * Player wins.
+     * JSON response.
+     * @param $request
+     */
+    private function win($request)
+    {
+        header('Content-type: application/json; charset=UTF-8');
+        $data = [
+            'balance' => '56.55',
+            'transaction_id' => '2',
+        ];
+        echo json_encode($data);
+    }
+
+    /**
+     * Refund is a cash back in case bet problems.
+     * JSON response.
+     * @param $request
+     */
+    private function refund($request)
+    {
+        header('Content-type: application/json; charset=UTF-8');
+        $data = [
+            'balance' => '55.55',
+            'transaction_id' => '3',
+        ];
+        echo json_encode($data);
+    }
+
     /**
      * Process request from GIS
      */
@@ -52,27 +112,28 @@ class CasinoApi
             if ($contentType === 'application/x-www-form-urlencoded') {
 
                 $request = $_REQUEST;
-                switch ($request['action']) {
+                $action = $request['action'];
+                switch ($action) {
 
                     case 'balance':
-                        //$this->balance($request);
+                        $this->balance($request);
                         break;
 
                     case 'bet':
-                        //$this->bet($request);
+                        $this->bet($request);
                         break;
 
                     case 'win':
-                        //$this->win($request);
+                        $this->win($request);
                         break;
 
                     case 'refund':
-                        //$this->refund($request);
+                        $this->refund($request);
                         break;
 
                     default:
                         $errorCode = 'INTERNAL_ERROR';
-                        $errorDescription = '';
+                        $errorDescription = 'Action ' . $action . ' not found';
                         $this->errorResponse($errorCode, $errorDescription);
                         break;
 
