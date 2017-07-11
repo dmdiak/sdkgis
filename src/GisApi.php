@@ -2,6 +2,10 @@
 
 namespace SdkGis;
 
+/**
+ * Class GisApiClient
+ * @package SdkGis
+ */
 class GisApiClient
 {
 
@@ -10,11 +14,19 @@ class GisApiClient
      */
     private $config;
 
+    /**
+     * GisApiClient constructor.
+     * @param $config
+     */
     public function __construct($config)
     {
         $this->config = $config;
     }
 
+    /**
+     * @param array $requestParams
+     * @return array
+     */
     private function getAuthHeaders($requestParams = [])
     {
         $integrationData = $this->config['integration_data'];
@@ -35,6 +47,9 @@ class GisApiClient
         return $authHeaders;
     }
 
+    /**
+     *
+     */
     public function getGames()
     {
         $authHeaders = $this->getAuthHeaders();
