@@ -38,7 +38,7 @@ class CasinoApi
             'error_code' => $errorCode,
             'error_description' => $errorDescription,
         ];
-        echo json_encode($errorData);
+        echo json_encode($errorData);exit;
     }
 
     /**
@@ -49,7 +49,7 @@ class CasinoApi
     {
         header('Content-type: application/json; charset=UTF-8');
         $data = get_object_vars($response);
-        echo json_encode($data);
+        echo json_encode($data);exit;
     }
 
     /**
