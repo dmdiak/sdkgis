@@ -1,6 +1,6 @@
 <?php
 
-namespace SdkGis;
+namespace SdkGis\Interfaces;
 
 interface IClient
 {

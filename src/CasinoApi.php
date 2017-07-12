@@ -2,6 +2,9 @@
 
 namespace SdkGis;
 
+use SdkGis\Responses\Response;
+use SdkGis\Interfaces\IClient;
+
 /**
  * Class CasinoApi
  * @package SdkGis
@@ -40,18 +43,19 @@ class CasinoApi
 
     /**
      * Success JSON response.
-     * @param array $data
+     * @param Response $response
      */
-    private function successResponse($data)
+    private function successResponse($response)
     {
         header('Content-type: application/json; charset=UTF-8');
+        $data = get_object_vars($response);
         echo json_encode($data);
     }
 
     /**
      * Actual player's balance.
      * JSON response.
-     * @param $request
+     * @param array $request
      */
     private function balance($request)
     {
@@ -62,8 +66,8 @@ class CasinoApi
 
         if (count(array_intersect_key(array_flip($requiredFields), $request)) === count($requiredFields)) {
 
-            $data = $this->client->balance($request);
-            $this->successResponse($data);
+            $response = $this->client->balance($request);
+            $this->successResponse($response);
 
         } else {
 
@@ -78,17 +82,17 @@ class CasinoApi
     /**
      * Player makes a bet.
      * JSON response.
-     * @param $request
+     * @param array $request
      */
     private function bet($request)
     {
         $requiredFields = [
             'amount',
             'currency',
-            'gameUuid',
-            'playerId',
-            'transactionId',
-            'sessionId',
+            'game_uuid',
+            'player_id',
+            'transaction_id',
+            'session_id',
             'type',
         ];
 
@@ -109,17 +113,17 @@ class CasinoApi
     /**
      * Player wins.
      * JSON response.
-     * @param $request
+     * @param array $request
      */
     private function win($request)
     {
         $requiredFields = [
             'amount',
             'currency',
-            'gameUuid',
-            'playerId',
-            'transactionId',
-            'sessionId',
+            'game_uuid',
+            'player_id',
+            'transaction_id',
+            'session_id',
             'type',
         ];
 
@@ -140,18 +144,18 @@ class CasinoApi
     /**
      * Refund is a cash back in case bet problems.
      * JSON response.
-     * @param $request
+     * @param array $request
      */
     private function refund($request)
     {
         $requiredFields = [
             'amount',
             'currency',
-            'gameUuid',
-            'playerId',
-            'transactionId',
-            'sessionId',
-            'betTransactionId',
+            'game_uuid',
+            'player_id',
+            'transaction_id',
+            'session_id',
+            'bet_transaction_id',
         ];
 
         if (count(array_intersect_key(array_flip($requiredFields), $request)) === count($requiredFields)) {
