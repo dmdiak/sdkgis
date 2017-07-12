@@ -42,10 +42,10 @@ class CasinoApi
     }
 
     /**
-     * Success JSON response.
+     * JSON response.
      * @param Response $response
      */
-    private function successResponse($response)
+    private function response($response)
     {
         header('Content-type: application/json; charset=UTF-8');
         $data = get_object_vars($response);
@@ -67,7 +67,7 @@ class CasinoApi
         if (count(array_intersect_key(array_flip($requiredFields), $request)) === count($requiredFields)) {
 
             $response = $this->client->balance($request);
-            $this->successResponse($response);
+            $this->response($response);
 
         } else {
 
@@ -98,8 +98,8 @@ class CasinoApi
 
         if (count(array_intersect_key(array_flip($requiredFields), $request)) === count($requiredFields)) {
 
-            $data = $this->client->bet($request);
-            $this->successResponse($data);
+            $response = $this->client->bet($request);
+            $this->response($response);
 
         } else {
 
@@ -129,8 +129,8 @@ class CasinoApi
 
         if (count(array_intersect_key(array_flip($requiredFields), $request)) === count($requiredFields)) {
 
-            $data = $this->client->win($request);
-            $this->successResponse($data);
+            $response = $this->client->win($request);
+            $this->response($response);
 
         } else {
 
@@ -160,8 +160,8 @@ class CasinoApi
 
         if (count(array_intersect_key(array_flip($requiredFields), $request)) === count($requiredFields)) {
 
-            $data = $this->client->refund($request);
-            $this->successResponse($data);
+            $response = $this->client->refund($request);
+            $this->response($response);
 
         } else {
 

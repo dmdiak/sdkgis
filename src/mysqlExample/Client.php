@@ -8,7 +8,7 @@ use SdkGis\Responses\BalanceResponse;
 use SdkGis\Responses\BetResponse;
 use SdkGis\Responses\WinResponse;
 use SdkGis\Responses\RefundResponse;
-use SdkGis\Responses\ExceptionResponse;
+use SdkGis\Responses\ErrorResponse;
 
 /**
  * Class Client
@@ -21,6 +21,9 @@ class Client implements IClient
      */
     private $db;
 
+    /**
+     * Client constructor.
+     */
     public function __construct()
     {
         try {
@@ -32,21 +35,30 @@ class Client implements IClient
             header('Content-type: application/json; charset=UTF-8');
             $errorData = [
                 'error_code' => 'INTERNAL_ERROR',
-                'error_description' => 'Client Side DB Exception',
+                'error_description' => 'Client Side DB Error',
             ];
             echo json_encode($errorData);exit;
 
         }
     }
 
-    private function getDBException($code = 'INTERNAL_ERROR', $description = 'Client Side DB Exception')
+    /**
+     * @param string $code
+     * @param string $description
+     * @return ErrorResponse
+     */
+    private function getDBError($code = 'INTERNAL_ERROR', $description = 'Client Side DB Error')
     {
-        $exception = new ExceptionResponse();
-        $exception->setErrorCode($code)->setErrorDescription($description);
+        $error = new ErrorResponse();
+        $error->setErrorCode($code)->setErrorDescription($description);
 
-        return $exception;
+        return $error;
     }
 
+    /**
+     * @param array $request
+     * @return BalanceResponse|ErrorResponse
+     */
     public function balance($request)
     {
 
@@ -67,12 +79,12 @@ class Client implements IClient
                 $response->setBalance($result['amount']);
 
             } else {
-                $response = $this->getDBException();
+                $response = $this->getDBError();
             }
 
         } catch (\Exception $e) {
 
-            $response = $this->getDBException();
+            $response = $this->getDBError();
 
         } finally {
 
@@ -82,6 +94,10 @@ class Client implements IClient
 
     }
 
+    /**
+     * @param array $request
+     * @return BetResponse|ErrorResponse
+     */
     public function bet($request)
     {
         try {
@@ -155,7 +171,7 @@ class Client implements IClient
 
         } catch (\Exception $e) {
 
-            $response = $this->getDBException();
+            $response = $this->getDBError();
 
         } finally {
 
@@ -164,6 +180,10 @@ class Client implements IClient
         }
     }
 
+    /**
+     * @param array $request
+     * @return ErrorResponse|WinResponse
+     */
     public function win($request)
     {
         try {
@@ -237,7 +257,7 @@ class Client implements IClient
 
         } catch (\Exception $e) {
 
-            $response = $this->getDBException();
+            $response = $this->getDBError();
 
         } finally {
 
@@ -246,6 +266,10 @@ class Client implements IClient
         }
     }
 
+    /**
+     * @param array $request
+     * @return ErrorResponse|RefundResponse
+     */
     public function refund($request)
     {
         try {
@@ -321,7 +345,7 @@ class Client implements IClient
 
         } catch (\Exception $e) {
 
-            $response = $this->getDBException();
+            $response = $this->getDBError();
 
         } finally {
 

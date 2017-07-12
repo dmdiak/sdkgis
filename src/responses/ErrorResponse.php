@@ -3,10 +3,10 @@
 namespace SdkGis\Responses;
 
 /**
- * Class ExceptionResponse
+ * Class ErrorResponse
  * @package SdkGis\Responses
  */
-class ExceptionResponse extends Response
+class ErrorResponse extends Response
 {
     /**
      * @var string
@@ -20,7 +20,7 @@ class ExceptionResponse extends Response
 
     /**
      * @param string $error_code
-     * @return ExceptionResponse
+     * @return ErrorResponse
      */
     public function setErrorCode($error_code)
     {
@@ -30,7 +30,7 @@ class ExceptionResponse extends Response
 
     /**
      * @param string $error_description
-     * @return ExceptionResponse
+     * @return ErrorResponse
      */
     public function setErrorDescription($error_description)
     {
