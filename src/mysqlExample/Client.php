@@ -110,7 +110,7 @@ class Client implements IClient
                 throw new \Exception();
             }
 
-            $query = 'SELECT id, COUNT(*) AS counter FROM casino.transactions WHERE transaction_id = :transaction_id';
+            $query = 'SELECT id FROM casino.transactions WHERE transaction_id = :transaction_id';
             $stmt = $this->db->prepare($query);
             $stmt->execute([
                 'transaction_id' => $request['transaction_id'],
@@ -118,7 +118,7 @@ class Client implements IClient
 
             $result = $stmt->fetch();
 
-            if ($result['counter'] === '0') {
+            if (!is_array($result) || empty($result)) {
 
                 $query = 'SELECT id, amount FROM casino.balances WHERE player_id = :player_id AND currency = :currency';
                 $stmt = $this->db->prepare($query);
@@ -208,7 +208,7 @@ class Client implements IClient
                 throw new \Exception();
             }
 
-            $query = 'SELECT id, COUNT(*) AS counter FROM casino.transactions WHERE transaction_id = :transaction_id';
+            $query = 'SELECT id FROM casino.transactions WHERE transaction_id = :transaction_id';
             $stmt = $this->db->prepare($query);
             $stmt->execute([
                 'transaction_id' => $request['transaction_id'],
@@ -216,7 +216,7 @@ class Client implements IClient
 
             $result = $stmt->fetch();
 
-            if ($result['counter'] === '0') {
+            if (!is_array($result) || empty($result)) {
 
                 $query = 'SELECT id, amount FROM casino.balances WHERE player_id = :player_id AND currency = :currency';
                 $stmt = $this->db->prepare($query);
@@ -306,7 +306,7 @@ class Client implements IClient
                 throw new \Exception();
             }
 
-            $query = 'SELECT id, COUNT(*) AS counter FROM casino.transactions
+            $query = 'SELECT id FROM casino.transactions
                       WHERE transaction_id = :transaction_id OR bet_transaction_id = :bet_transaction_id';
             $stmt = $this->db->prepare($query);
             $stmt->execute([
@@ -316,7 +316,7 @@ class Client implements IClient
 
             $result = $stmt->fetch();
 
-            if ($result['counter'] === '0') {
+            if (!is_array($result) || empty($result)) {
 
                 $query = 'SELECT id, amount FROM casino.balances WHERE player_id = :player_id AND currency = :currency';
                 $stmt = $this->db->prepare($query);
@@ -341,7 +341,7 @@ class Client implements IClient
 
                     $result = $stmt->fetch();
 
-                    if ($result['counter'] !== '0') {
+                    if (is_array($result) && !empty($result)) {
 
                         $transactionAmount = $result['amount'];
 
