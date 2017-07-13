@@ -326,56 +326,85 @@ class Client implements IClient
                 ]);
 
                 $balanceData = $stmt->fetch();
-                $balanceId = $balanceData['id'];
 
-                $query = "SELECT * FROM casino.transactions WHERE transaction_id = :bet_transaction_id
+                if (is_array($balanceData)) {
+
+                    $balanceId = $balanceData['id'];
+
+                    $query = "SELECT * FROM casino.transactions WHERE transaction_id = :bet_transaction_id
                           AND type = 'bet' AND session_id = :session_id";
-                $stmt = $this->db->prepare($query);
-                $stmt->execute([
-                    'bet_transaction_id' => $request['bet_transaction_id'],
-                    'session_id' => $request['session_id'],
-                ]);
-
-                $result = $stmt->fetch();
-
-                if ($result['counter'] !== '0') {
-
-                    $transactionAmount = $result['amount'];
-
-                    $balanceAmount = $balanceData['amount'] + $transactionAmount;
-
-                    $query = 'UPDATE casino.balances SET amount = :amount WHERE id = :id';
                     $stmt = $this->db->prepare($query);
                     $stmt->execute([
-                        'amount' => $balanceAmount,
-                        'id' => $balanceId,
-                    ]);
-
-                    $query = 'INSERT INTO casino.transactions
-                      (player_id, balance_id, game_uuid, session_id, transaction_id, action, amount, currency, type)
-                      VALUES (:player_id, :balance_id, :game_uuid, :session_id, :transaction_id, :action, :amount, :currency, :type)';
-                    $stmt = $this->db->prepare($query);
-                    $stmt->execute([
-                        'player_id' => $request['player_id'],
-                        'balance_id' => $balanceId,
-                        'game_uuid' => $request['game_uuid'],
-                        'session_id' => $request['session_id'],
-                        'transaction_id' => $request['transaction_id'],
-                        'action' => 'refund',
-                        'amount' => $request['amount'],
-                        'currency' => $request['currency'],
                         'bet_transaction_id' => $request['bet_transaction_id'],
+                        'session_id' => $request['session_id'],
                     ]);
 
-                    $transactionId = $this->db->lastInsertId();
+                    $result = $stmt->fetch();
 
-                    $response = new RefundResponse();
-                    $response->setBalance($balanceAmount)->setTransactionId($transactionId);
+                    if ($result['counter'] !== '0') {
+
+                        $transactionAmount = $result['amount'];
+
+                        $balanceAmount = $balanceData['amount'] + $transactionAmount;
+
+                        $query = 'UPDATE casino.balances SET amount = :amount WHERE id = :id';
+                        $stmt = $this->db->prepare($query);
+                        $stmt->execute([
+                            'amount' => $balanceAmount,
+                            'id' => $balanceId,
+                        ]);
+
+                        $query = 'INSERT INTO casino.transactions
+                                  (player_id, balance_id, game_uuid, session_id, transaction_id, action, amount, currency, type, is_correct)
+                                  VALUES (:player_id, :balance_id, :game_uuid, :session_id, :transaction_id, :action, :amount, :currency, :type, :is_correct)';
+                        $stmt = $this->db->prepare($query);
+                        $stmt->execute([
+                            'player_id' => $request['player_id'],
+                            'balance_id' => $balanceId,
+                            'game_uuid' => $request['game_uuid'],
+                            'session_id' => $request['session_id'],
+                            'transaction_id' => $request['transaction_id'],
+                            'action' => 'refund',
+                            'amount' => $request['amount'],
+                            'currency' => $request['currency'],
+                            'bet_transaction_id' => $request['bet_transaction_id'],
+                            'is_correct' => 1,
+                        ]);
+
+                        $transactionId = $this->db->lastInsertId();
+
+                        $response = new RefundResponse();
+                        $response->setBalance($balanceAmount)->setTransactionId($transactionId);
+
+                    } else {
+
+                        $query = 'INSERT INTO casino.transactions
+                                  (player_id, balance_id, game_uuid, session_id, transaction_id, action, amount, currency, type, is_correct)
+                                  VALUES (:player_id, :balance_id, :game_uuid, :session_id, :transaction_id, :action, :amount, :currency, :type, :is_correct)';
+                        $stmt = $this->db->prepare($query);
+                        $stmt->execute([
+                            'player_id' => $request['player_id'],
+                            'balance_id' => $balanceId,
+                            'game_uuid' => $request['game_uuid'],
+                            'session_id' => $request['session_id'],
+                            'transaction_id' => $request['transaction_id'],
+                            'action' => 'refund',
+                            'amount' => $request['amount'],
+                            'currency' => $request['currency'],
+                            'bet_transaction_id' => $request['bet_transaction_id'],
+                            'is_correct' => 0,
+                        ]);
+
+                        $transactionId = $this->db->lastInsertId();
+                        $balanceAmount = $balanceData['amount'];
+
+                        $response = new RefundResponse();
+                        $response->setBalance($balanceAmount)->setTransactionId($transactionId);
+
+                    }
 
                 } else {
-
-                    //TODO: Transaction_ID ???
-
+                    $response = $this->getErrorResponse();
                 }
 
             } else {
