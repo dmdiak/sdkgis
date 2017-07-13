@@ -282,4 +282,35 @@ class GisApi
         return $result;
     }
 
+    /**
+     * GIS API
+     * Self validation.
+     * Method: /self-validate
+     * @return array
+     */
+    public function selfValidate()
+    {
+        $authHeaders = $this->getAuthHeaders();
+
+        $integrationData = $this->config['integrationData'];
+        $gisApiOpt = $this->config['gisApiOpt'];
+
+        $curl = curl_init($integrationData['baseApiUrl'] . '/self-validate');
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $gisApiOpt['connectTimeout']);
+        curl_setopt($curl, CURLOPT_TIMEOUT, $gisApiOpt['timeout']);
+
+        $headers = [];
+        foreach ($authHeaders as $key => $value) {
+            $headers[] = $key . ': ' . $value;
+        }
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+        $json = curl_exec($curl);
+        $result = json_decode($json, true);
+
+        return $result;
+    }
+
 }

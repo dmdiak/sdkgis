@@ -47,7 +47,7 @@ class Client implements IClient
      * @param string $description
      * @return ErrorResponse
      */
-    private function getDBError($code = 'INTERNAL_ERROR', $description = 'Client Side DB Error')
+    private function getErrorResponse($code = 'INTERNAL_ERROR', $description = 'Something goes wrong')
     {
         $error = new ErrorResponse();
         $error->setErrorCode($code)->setErrorDescription($description);
@@ -64,6 +64,10 @@ class Client implements IClient
 
         try {
 
+            if (preg_match('/\D+/', $request['player_id'])) {
+                throw new \Exception();
+            }
+
             $query = 'SELECT amount FROM casino.balances WHERE player_id = :player_id AND currency = :currency';
             $stmt = $this->db->prepare($query);
             $stmt->execute([
@@ -79,12 +83,12 @@ class Client implements IClient
                 $response->setBalance($result['amount']);
 
             } else {
-                $response = $this->getDBError();
+                $response = $this->getErrorResponse();
             }
 
         } catch (\Exception $e) {
 
-            $response = $this->getDBError();
+            $response = $this->getErrorResponse();
 
         } finally {
 
@@ -101,6 +105,10 @@ class Client implements IClient
     public function bet($request)
     {
         try {
+
+            if (!preg_match('/^\d+\.?\d+$|^\d+$/', $request['amount']) || preg_match('/\D+/', $request['player_id'])) {
+                throw new \Exception();
+            }
 
             $query = 'SELECT id, COUNT(*) AS counter FROM casino.transactions WHERE transaction_id = :transaction_id';
             $stmt = $this->db->prepare($query);
@@ -171,7 +179,7 @@ class Client implements IClient
 
         } catch (\Exception $e) {
 
-            $response = $this->getDBError();
+            $response = $this->getErrorResponse();
 
         } finally {
 
@@ -187,6 +195,10 @@ class Client implements IClient
     public function win($request)
     {
         try {
+
+            if (!preg_match('/^\d+\.?\d+$|^\d+$/', $request['amount']) || preg_match('/\D+/', $request['player_id'])) {
+                throw new \Exception();
+            }
 
             $query = 'SELECT id, COUNT(*) AS counter FROM casino.transactions WHERE transaction_id = :transaction_id';
             $stmt = $this->db->prepare($query);
@@ -257,7 +269,7 @@ class Client implements IClient
 
         } catch (\Exception $e) {
 
-            $response = $this->getDBError();
+            $response = $this->getErrorResponse();
 
         } finally {
 
@@ -273,6 +285,10 @@ class Client implements IClient
     public function refund($request)
     {
         try {
+
+            if (!preg_match('/^\d+\.?\d+$|^\d+$/', $request['amount']) || preg_match('/\D+/', $request['player_id'])) {
+                throw new \Exception();
+            }
 
             $query = 'SELECT id, COUNT(*) AS counter FROM casino.transactions
                       WHERE transaction_id = :transaction_id OR bet_transaction_id = :bet_transaction_id';
@@ -295,7 +311,35 @@ class Client implements IClient
 
                 $balanceData = $stmt->fetch();
                 $balanceId = $balanceData['id'];
-                $balanceAmount = $balanceData['amount'] - $request['amount'];
+
+                $query = 'SELECT * FROM casino.transactions WHERE transaction_id = :transaction_id
+                          AND amount = :amount AND currency = :currency AND game_uuid = :game_uuid
+                          AND player_id = :player_id AND session_id = :session_id';
+                $stmt = $this->db->prepare($query);
+                $stmt->execute([
+                    'transaction_id' => $request['bet_transaction_id'],
+                    'amount' => $request['amount'],
+                    'currency' => $request['currency'],
+                    'game_uuid' => $request['game_uuid'],
+                    'player_id' => $request['player_id'],
+                    'session_id' => $request['session_id'],
+                ]);
+
+                $result = $stmt->fetch();
+
+                if ($result['counter'] === '0') {
+                    throw new \Exception();
+                }
+                $transactionAmount = $result['amount'];
+                $transactionAction = $result['action'];
+
+                if ($transactionAction === 'win') {
+                    $balanceAmount = $balanceData['amount'] - $transactionAmount;
+                } elseif ($transactionAction === 'bet') {
+                    $balanceAmount = $balanceData['amount'] + $transactionAmount;
+                } else {
+                    throw new \Exception();
+                }
 
                 $query = 'UPDATE casino.balances SET amount = :amount WHERE id = :id';
                 $stmt = $this->db->prepare($query);
@@ -345,7 +389,7 @@ class Client implements IClient
 
         } catch (\Exception $e) {
 
-            $response = $this->getDBError();
+            $response = $this->getErrorResponse();
 
         } finally {
 
