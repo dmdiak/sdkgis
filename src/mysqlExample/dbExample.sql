@@ -1,4 +1,6 @@
-CREATE DATABASE IF NOT EXISTS casino;
+CREATE DATABASE IF NOT EXISTS casino
+  DEFAULT CHARACTER SET utf8
+  DEFAULT COLLATE utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS casino.players
 (
@@ -16,7 +18,7 @@ CREATE TABLE IF NOT EXISTS casino.balances
   currency VARCHAR(4) NOT NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (player_id)
-    REFERENCES casino.players(id)
+  REFERENCES casino.players(id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS casino.transactions
@@ -30,10 +32,11 @@ CREATE TABLE IF NOT EXISTS casino.transactions
   action VARCHAR(20) NOT NULL,
   amount DECIMAL(15,2) NOT NULL,
   currency VARCHAR(4) NOT NULL,
-  balance DECIMAL(15,2) NOT NULL,
+  type VARCHAR(20),
+  bet_transaction_id VARCHAR(255),
   PRIMARY KEY (id),
   FOREIGN KEY (player_id)
-    REFERENCES casino.players(id),
+  REFERENCES casino.players(id),
   FOREIGN KEY (balance_id)
-    REFERENCES casino.balances(id)
+  REFERENCES casino.balances(id)
 ) ENGINE=InnoDB;
