@@ -48,6 +48,45 @@ class GisApi
     }
 
     /**
+     * Send request to GIS.
+     * @param array $authHeaders
+     * @param string $url
+     * @param string $method
+     * @param array $postParams
+     * @return array
+     */
+    private function sendRequest($authHeaders, $url, $method = 'GET', $postParams = [])
+    {
+        $gisApiOpt = $this->config['gisApiOpt'];
+
+        $curl = curl_init($url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $gisApiOpt['connectTimeout']);
+        curl_setopt($curl, CURLOPT_TIMEOUT, $gisApiOpt['timeout']);
+
+        $headers = [];
+        if ($method === 'POST') {
+            curl_setopt($curl, CURLOPT_POST, true);
+            if (!empty($postParams)) {
+                curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($postParams));
+                $headers = [
+                    'Content-Type: application/x-www-form-urlencoded',
+                ];
+            }
+        }
+
+        foreach ($authHeaders as $key => $value) {
+            $headers[] = $key . ': ' . $value;
+        }
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+        $json = curl_exec($curl);
+        $result = json_decode($json, true);
+
+        return $result;
+    }
+
+    /**
      * GIS API
      * Retrieving games list.
      * Method: /games
@@ -58,21 +97,9 @@ class GisApi
         $authHeaders = $this->getAuthHeaders();
 
         $integrationData = $this->config['integrationData'];
-        $gisApiOpt = $this->config['gisApiOpt'];
 
-        $curl = curl_init($integrationData['baseApiUrl'] . '/games');
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $gisApiOpt['connectTimeout']);
-        curl_setopt($curl, CURLOPT_TIMEOUT, $gisApiOpt['timeout']);
-
-        $headers = [];
-        foreach ($authHeaders as $key => $value) {
-            $headers[] = $key . ': ' . $value;
-        }
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-
-        $json = curl_exec($curl);
-        $result = json_decode($json, true);
+        $url = $integrationData['baseApiUrl'] . '/games';
+        $result = $this->sendRequest($authHeaders, $url);
 
         return $result;
     }
@@ -91,26 +118,15 @@ class GisApi
             'game_uuid' => $gameUuid,
             'currency' => $currency,
         ];
+
         $requestParamsStr = http_build_query($requestParams);
 
         $authHeaders = $this->getAuthHeaders($requestParams);
 
         $integrationData = $this->config['integrationData'];
-        $gisApiOpt = $this->config['gisApiOpt'];
 
-        $curl = curl_init($integrationData['baseApiUrl'] . '/games/lobby?' . $requestParamsStr);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $gisApiOpt['connectTimeout']);
-        curl_setopt($curl, CURLOPT_TIMEOUT, $gisApiOpt['timeout']);
-
-        $headers = [];
-        foreach ($authHeaders as $key => $value) {
-            $headers[] = $key . ': ' . $value;
-        }
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-
-        $json = curl_exec($curl);
-        $result = json_decode($json, true);
+        $url = $integrationData['baseApiUrl'] . '/games/lobby?' . $requestParamsStr;
+        $result = $this->sendRequest($authHeaders, $url);
 
         return $result;
     }
@@ -153,28 +169,14 @@ class GisApi
             'lobby_data' => $lobbyData,
         ];
 
+        $postParams = http_build_query($requestParams);
+
         $authHeaders = $this->getAuthHeaders($requestParams);
 
         $integrationData = $this->config['integrationData'];
-        $gisApiOpt = $this->config['gisApiOpt'];
 
-        $curl = curl_init($integrationData['baseApiUrl'] . '/games/init');
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($requestParams));
-        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $gisApiOpt['connectTimeout']);
-        curl_setopt($curl, CURLOPT_TIMEOUT, $gisApiOpt['timeout']);
-
-        $headers = [
-            'Content-Type: application/x-www-form-urlencoded',
-        ];
-        foreach ($authHeaders as $key => $value) {
-            $headers[] = $key . ': ' . $value;
-        }
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-
-        $json = curl_exec($curl);
-        $result = json_decode($json, true);
+        $url = $integrationData['baseApiUrl'] . '/games/init';
+        $result = $this->sendRequest($authHeaders, $url, 'POST', $postParams);
 
         return $result;
     }
@@ -196,28 +198,14 @@ class GisApi
             'language' => $language,
         ];
 
+        $postParams = http_build_query($requestParams);
+
         $authHeaders = $this->getAuthHeaders($requestParams);
 
         $integrationData = $this->config['integrationData'];
-        $gisApiOpt = $this->config['gisApiOpt'];
 
-        $curl = curl_init($integrationData['baseApiUrl'] . '/games/init-demo');
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($requestParams));
-        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $gisApiOpt['connectTimeout']);
-        curl_setopt($curl, CURLOPT_TIMEOUT, $gisApiOpt['timeout']);
-
-        $headers = [
-            'Content-Type: application/x-www-form-urlencoded',
-        ];
-        foreach ($authHeaders as $key => $value) {
-            $headers[] = $key . ': ' . $value;
-        }
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-
-        $json = curl_exec($curl);
-        $result = json_decode($json, true);
+        $url = $integrationData['baseApiUrl'] . '/games/init-demo';
+        $result = $this->sendRequest($authHeaders, $url, 'POST', $postParams);
 
         return $result;
     }
@@ -233,21 +221,9 @@ class GisApi
         $authHeaders = $this->getAuthHeaders();
 
         $integrationData = $this->config['integrationData'];
-        $gisApiOpt = $this->config['gisApiOpt'];
 
-        $curl = curl_init($integrationData['baseApiUrl'] . '/limits');
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $gisApiOpt['connectTimeout']);
-        curl_setopt($curl, CURLOPT_TIMEOUT, $gisApiOpt['timeout']);
-
-        $headers = [];
-        foreach ($authHeaders as $key => $value) {
-            $headers[] = $key . ': ' . $value;
-        }
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-
-        $json = curl_exec($curl);
-        $result = json_decode($json, true);
+        $url = $integrationData['baseApiUrl'] . '/limits';
+        $result = $this->sendRequest($authHeaders, $url);
 
         return $result;
     }
@@ -263,21 +239,9 @@ class GisApi
         $authHeaders = $this->getAuthHeaders();
 
         $integrationData = $this->config['integrationData'];
-        $gisApiOpt = $this->config['gisApiOpt'];
 
-        $curl = curl_init($integrationData['baseApiUrl'] . '/jackpots');
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $gisApiOpt['connectTimeout']);
-        curl_setopt($curl, CURLOPT_TIMEOUT, $gisApiOpt['timeout']);
-
-        $headers = [];
-        foreach ($authHeaders as $key => $value) {
-            $headers[] = $key . ': ' . $value;
-        }
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-
-        $json = curl_exec($curl);
-        $result = json_decode($json, true);
+        $url = $integrationData['baseApiUrl'] . '/jackpots';
+        $result = $this->sendRequest($authHeaders, $url);
 
         return $result;
     }
@@ -293,22 +257,9 @@ class GisApi
         $authHeaders = $this->getAuthHeaders();
 
         $integrationData = $this->config['integrationData'];
-        $gisApiOpt = $this->config['gisApiOpt'];
 
-        $curl = curl_init($integrationData['baseApiUrl'] . '/self-validate');
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $gisApiOpt['connectTimeout']);
-        curl_setopt($curl, CURLOPT_TIMEOUT, $gisApiOpt['timeout']);
-
-        $headers = [];
-        foreach ($authHeaders as $key => $value) {
-            $headers[] = $key . ': ' . $value;
-        }
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-
-        $json = curl_exec($curl);
-        $result = json_decode($json, true);
+        $url = $integrationData['baseApiUrl'] . '/self-validate';
+        $result = $this->sendRequest($authHeaders, $url, 'POST');
 
         return $result;
     }
