@@ -68,7 +68,7 @@ class Client implements IClient
                 throw new \Exception();
             }
 
-            $query = 'SELECT amount FROM casino.balances WHERE player_id = :player_id AND currency = :currency';
+            $query = "SELECT amount FROM casino.balances WHERE player_id = :player_id AND currency = :currency";
             $stmt = $this->db->prepare($query);
             $stmt->execute([
                 'player_id' => $request['player_id'],
@@ -110,7 +110,7 @@ class Client implements IClient
                 throw new \Exception();
             }
 
-            $query = 'SELECT id FROM casino.transactions WHERE transaction_id = :transaction_id';
+            $query = "SELECT id FROM casino.transactions WHERE transaction_id = :transaction_id";
             $stmt = $this->db->prepare($query);
             $stmt->execute([
                 'transaction_id' => $request['transaction_id'],
@@ -120,7 +120,7 @@ class Client implements IClient
 
             if (!is_array($result) || empty($result)) {
 
-                $query = 'SELECT id, amount FROM casino.balances WHERE player_id = :player_id AND currency = :currency';
+                $query = "SELECT id, amount FROM casino.balances WHERE player_id = :player_id AND currency = :currency";
                 $stmt = $this->db->prepare($query);
                 $stmt->execute([
                     'player_id' => $request['player_id'],
@@ -134,16 +134,16 @@ class Client implements IClient
                     $balanceId = $balanceData['id'];
                     $balanceAmount = $balanceData['amount'] - $request['amount'];
 
-                    $query = 'UPDATE casino.balances SET amount = :amount WHERE id = :id';
+                    $query = "UPDATE casino.balances SET amount = :amount WHERE id = :id";
                     $stmt = $this->db->prepare($query);
                     $stmt->execute([
                         'amount' => $balanceAmount,
                         'id' => $balanceId,
                     ]);
 
-                    $query = 'INSERT INTO casino.transactions
+                    $query = "INSERT INTO casino.transactions
                           (player_id, balance_id, game_uuid, session_id, transaction_id, action, amount, currency, type, is_correct)
-                          VALUES (:player_id, :balance_id, :game_uuid, :session_id, :transaction_id, :action, :amount, :currency, :type, :is_correct)';
+                          VALUES (:player_id, :balance_id, :game_uuid, :session_id, :transaction_id, :action, :amount, :currency, :type, :is_correct)";
                     $stmt = $this->db->prepare($query);
                     $stmt->execute([
                         'player_id' => $request['player_id'],
@@ -171,7 +171,7 @@ class Client implements IClient
 
                 $transactionId = $result['id'];
 
-                $query = 'SELECT amount FROM casino.balances WHERE player_id = :player_id AND currency = :currency';
+                $query = "SELECT amount FROM casino.balances WHERE player_id = :player_id AND currency = :currency";
                 $stmt = $this->db->prepare($query);
                 $stmt->execute([
                     'player_id' => $request['player_id'],
@@ -208,7 +208,7 @@ class Client implements IClient
                 throw new \Exception();
             }
 
-            $query = 'SELECT id FROM casino.transactions WHERE transaction_id = :transaction_id';
+            $query = "SELECT id FROM casino.transactions WHERE transaction_id = :transaction_id";
             $stmt = $this->db->prepare($query);
             $stmt->execute([
                 'transaction_id' => $request['transaction_id'],
@@ -218,7 +218,7 @@ class Client implements IClient
 
             if (!is_array($result) || empty($result)) {
 
-                $query = 'SELECT id, amount FROM casino.balances WHERE player_id = :player_id AND currency = :currency';
+                $query = "SELECT id, amount FROM casino.balances WHERE player_id = :player_id AND currency = :currency";
                 $stmt = $this->db->prepare($query);
                 $stmt->execute([
                     'player_id' => $request['player_id'],
@@ -232,16 +232,16 @@ class Client implements IClient
                     $balanceId = $balanceData['id'];
                     $balanceAmount = $balanceData['amount'] + $request['amount'];
 
-                    $query = 'UPDATE casino.balances SET amount = :amount WHERE id = :id';
+                    $query = "UPDATE casino.balances SET amount = :amount WHERE id = :id";
                     $stmt = $this->db->prepare($query);
                     $stmt->execute([
                         'amount' => $balanceAmount,
                         'id' => $balanceId,
                     ]);
 
-                    $query = 'INSERT INTO casino.transactions
+                    $query = "INSERT INTO casino.transactions
                           (player_id, balance_id, game_uuid, session_id, transaction_id, action, amount, currency, type, is_correct)
-                          VALUES (:player_id, :balance_id, :game_uuid, :session_id, :transaction_id, :action, :amount, :currency, :type, :is_correct)';
+                          VALUES (:player_id, :balance_id, :game_uuid, :session_id, :transaction_id, :action, :amount, :currency, :type, :is_correct)";
                     $stmt = $this->db->prepare($query);
                     $stmt->execute([
                         'player_id' => $request['player_id'],
@@ -269,7 +269,7 @@ class Client implements IClient
 
                 $transactionId = $result['id'];
 
-                $query = 'SELECT amount FROM casino.balances WHERE player_id = :player_id AND currency = :currency';
+                $query = "SELECT amount FROM casino.balances WHERE player_id = :player_id AND currency = :currency";
                 $stmt = $this->db->prepare($query);
                 $stmt->execute([
                     'player_id' => $request['player_id'],
@@ -306,8 +306,8 @@ class Client implements IClient
                 throw new \Exception();
             }
 
-            $query = 'SELECT id FROM casino.transactions
-                      WHERE transaction_id = :transaction_id OR bet_transaction_id = :bet_transaction_id';
+            $query = "SELECT id FROM casino.transactions
+                      WHERE transaction_id = :transaction_id OR bet_transaction_id = :bet_transaction_id";
             $stmt = $this->db->prepare($query);
             $stmt->execute([
                 'transaction_id' => $request['transaction_id'],
@@ -318,7 +318,7 @@ class Client implements IClient
 
             if (!is_array($result) || empty($result)) {
 
-                $query = 'SELECT id, amount FROM casino.balances WHERE player_id = :player_id AND currency = :currency';
+                $query = "SELECT id, amount FROM casino.balances WHERE player_id = :player_id AND currency = :currency";
                 $stmt = $this->db->prepare($query);
                 $stmt->execute([
                     'player_id' => $request['player_id'],
@@ -347,16 +347,16 @@ class Client implements IClient
 
                         $balanceAmount = $balanceData['amount'] + $transactionAmount;
 
-                        $query = 'UPDATE casino.balances SET amount = :amount WHERE id = :id';
+                        $query = "UPDATE casino.balances SET amount = :amount WHERE id = :id";
                         $stmt = $this->db->prepare($query);
                         $stmt->execute([
                             'amount' => $balanceAmount,
                             'id' => $balanceId,
                         ]);
 
-                        $query = 'INSERT INTO casino.transactions
-                                  (player_id, balance_id, game_uuid, session_id, transaction_id, action, amount, currency, type, is_correct)
-                                  VALUES (:player_id, :balance_id, :game_uuid, :session_id, :transaction_id, :action, :amount, :currency, :type, :is_correct)';
+                        $query = "INSERT INTO casino.transactions
+                                  (player_id, balance_id, game_uuid, session_id, transaction_id, action, amount, currency, bet_transaction_id, is_correct)
+                                  VALUES (:player_id, :balance_id, :game_uuid, :session_id, :transaction_id, :action, :amount, :currency, :bet_transaction_id, :is_correct)";
                         $stmt = $this->db->prepare($query);
                         $stmt->execute([
                             'player_id' => $request['player_id'],
@@ -378,9 +378,9 @@ class Client implements IClient
 
                     } else {
 
-                        $query = 'INSERT INTO casino.transactions
-                                  (player_id, balance_id, game_uuid, session_id, transaction_id, action, amount, currency, type, is_correct)
-                                  VALUES (:player_id, :balance_id, :game_uuid, :session_id, :transaction_id, :action, :amount, :currency, :type, :is_correct)';
+                        $query = "INSERT INTO casino.transactions
+                                  (player_id, balance_id, game_uuid, session_id, transaction_id, action, amount, currency, bet_transaction_id, is_correct)
+                                  VALUES (:player_id, :balance_id, :game_uuid, :session_id, :transaction_id, :action, :amount, :currency, :bet_transaction_id, :is_correct)";
                         $stmt = $this->db->prepare($query);
                         $stmt->execute([
                             'player_id' => $request['player_id'],
@@ -411,7 +411,7 @@ class Client implements IClient
 
                 $transactionId = $result['id'];
 
-                $query = 'SELECT amount FROM casino.balances WHERE player_id = :player_id AND currency = :currency';
+                $query = "SELECT amount FROM casino.balances WHERE player_id = :player_id AND currency = :currency";
                 $stmt = $this->db->prepare($query);
                 $stmt->execute([
                     'player_id' => $request['player_id'],
