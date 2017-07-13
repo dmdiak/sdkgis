@@ -183,32 +183,36 @@ class CasinoApi
      */
     private function checkAuthHeaders()
     {
-        if (!isset($_SERVER['X-Merchant-Id'])) {
+        if (!isset($_SERVER['HTTP_X_MERCHANT_ID'])) {
             $errorCode = 'INTERNAL_ERROR';
             $errorDescription = 'X-Merchant-Id header is missing';
             $this->errorResponse($errorCode, $errorDescription);
-        } elseif (!isset($_SERVER['X-Timestamp'])) {
+        } elseif (!isset($_SERVER['HTTP_X_TIMESTAMP'])) {
             $errorCode = 'INTERNAL_ERROR';
             $errorDescription = 'X-Timestamp header is missing';
             $this->errorResponse($errorCode, $errorDescription);
-        } elseif (!isset($_SERVER['X-Nonce'])) {
+        } elseif (!isset($_SERVER['HTTP_X_NONCE'])) {
             $errorCode = 'INTERNAL_ERROR';
             $errorDescription = 'X-Nonce header is missing';
             $this->errorResponse($errorCode, $errorDescription);
-        } elseif (!isset($_SERVER['X-Sign'])) {
+        } elseif (!isset($_SERVER['HTTP_X_SIGN'])) {
             $errorCode = 'INTERNAL_ERROR';
             $errorDescription = 'X-Sign header is missing';
             $this->errorResponse($errorCode, $errorDescription);
-        } elseif (preg_match('/\D+/', $_SERVER['X-Timestamp'])) {
+        } elseif (preg_match('/\D+/', $_SERVER['HTTP_X_TIMESTAMP'])) {
             $errorCode = 'INTERNAL_ERROR';
             $errorDescription = 'X-Timestamp header isn\'t correct';
             $this->errorResponse($errorCode, $errorDescription);
         }
 
-        $gisTime = strtotime($_SERVER['X-Timestamp']);
+        $gisTime = $_SERVER['HTTP_X_TIMESTAMP'];
         $time = time();
 
-        if (($gisTime > $time) || ($gisTime <= ($time - 30))) {
+        if ($gisTime > $time) {
+            $errorCode = 'INTERNAL_ERROR';
+            $errorDescription = 'X-Timestamp header isn\'t correct';
+            $this->errorResponse($errorCode, $errorDescription);
+        } elseif ($gisTime <= ($time - 30)) {
             $errorCode = 'INTERNAL_ERROR';
             $errorDescription = 'Request is expired';
             $this->errorResponse($errorCode, $errorDescription);
@@ -223,12 +227,12 @@ class CasinoApi
         $merchantKey = $this->config['integrationData']['merchantKey'];
 
         $headers = [
-            'X-Merchant-Id' => $_SERVER['X-Merchant-Id'],
-            'X-Timestamp'   => $_SERVER['X-Timestamp'],
-            'X-Nonce'       => $_SERVER['X-Nonce'],
+            'X-Merchant-Id' => $_SERVER['HTTP_X_MERCHANT_ID'],
+            'X-Timestamp'   => $_SERVER['HTTP_X_TIMESTAMP'],
+            'X-Nonce'       => $_SERVER['HTTP_X_NONCE'],
         ];
 
-        $xSign = $_SERVER['X-Sign'];
+        $xSign = $_SERVER['HTTP_X_SIGN'];
 
         $mergedParams = array_merge($_POST, $headers);
         ksort($mergedParams);
