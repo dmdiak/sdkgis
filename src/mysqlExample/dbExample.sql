@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS casino.transactions
   currency VARCHAR(4) NOT NULL,
   type VARCHAR(20),
   bet_transaction_id VARCHAR(255),
+  is_correct TINYINT(1) NOT NULL COMMENT '0 - no, 1 - yes',
   PRIMARY KEY (id),
   FOREIGN KEY (player_id)
   REFERENCES casino.players(id),
