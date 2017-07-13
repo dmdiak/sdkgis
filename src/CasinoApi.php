@@ -18,12 +18,18 @@ class CasinoApi
     private $client;
 
     /**
+     * @var array
+     */
+    private $config;
+
+    /**
      * CasinoApi constructor.
      * @param IClient $client
      */
     public function __construct(IClient $client)
     {
         $this->client = $client;
+        $this->config = include(__DIR__ . '/config/config.php');
     }
 
     /**
@@ -173,6 +179,71 @@ class CasinoApi
     }
 
     /**
+     * Check Authorization headers.
+     */
+    private function checkAuthHeaders()
+    {
+        if (!isset($_SERVER['X-Merchant-Id'])) {
+            $errorCode = 'INTERNAL_ERROR';
+            $errorDescription = 'X-Merchant-Id header is missing';
+            $this->errorResponse($errorCode, $errorDescription);
+        } elseif (!isset($_SERVER['X-Timestamp'])) {
+            $errorCode = 'INTERNAL_ERROR';
+            $errorDescription = 'X-Timestamp header is missing';
+            $this->errorResponse($errorCode, $errorDescription);
+        } elseif (!isset($_SERVER['X-Nonce'])) {
+            $errorCode = 'INTERNAL_ERROR';
+            $errorDescription = 'X-Nonce header is missing';
+            $this->errorResponse($errorCode, $errorDescription);
+        } elseif (!isset($_SERVER['X-Sign'])) {
+            $errorCode = 'INTERNAL_ERROR';
+            $errorDescription = 'X-Sign header is missing';
+            $this->errorResponse($errorCode, $errorDescription);
+        } elseif (preg_match('/\D+/', $_SERVER['X-Timestamp'])) {
+            $errorCode = 'INTERNAL_ERROR';
+            $errorDescription = 'X-Timestamp header isn\'t correct';
+            $this->errorResponse($errorCode, $errorDescription);
+        }
+
+        $gisTime = strtotime($_SERVER['X-Timestamp']);
+        $time = time();
+
+        if (($gisTime > $time) || ($gisTime <= ($time - 30))) {
+            $errorCode = 'INTERNAL_ERROR';
+            $errorDescription = 'Request is expired';
+            $this->errorResponse($errorCode, $errorDescription);
+        }
+    }
+
+    /**
+     * X-Sign validation.
+     */
+    private function checkXSign()
+    {
+        $merchantKey = $this->config['integrationData']['merchantKey'];
+
+        $headers = [
+            'X-Merchant-Id' => $_SERVER['X-Merchant-Id'],
+            'X-Timestamp'   => $_SERVER['X-Timestamp'],
+            'X-Nonce'       => $_SERVER['X-Nonce'],
+        ];
+
+        $xSign = $_SERVER['X-Sign'];
+
+        $mergedParams = array_merge($_POST, $headers);
+        ksort($mergedParams);
+        $hashString = http_build_query($mergedParams);
+
+        $expectedSign = hash_hmac('sha1', $hashString, $merchantKey);
+
+        if ($xSign !== $expectedSign) {
+            $errorCode = 'INTERNAL_ERROR';
+            $errorDescription = 'X-Sign header is wrong';
+            $this->errorResponse($errorCode, $errorDescription);
+        }
+    }
+
+    /**
      * Process request from GIS
      */
     public function processRequest()
@@ -182,6 +253,9 @@ class CasinoApi
 
             $contentType = $_SERVER['CONTENT_TYPE'];
             if ($contentType === 'application/x-www-form-urlencoded') {
+
+                $this->checkAuthHeaders();
+                $this->checkXSign();
 
                 $request = $_REQUEST;
                 $action = $request['action'];
