@@ -77,7 +77,7 @@ class Client implements IClient
 
             $result = $stmt->fetch();
 
-            if (is_array($result)) {
+            if (is_array($result) && !empty($result)) {
 
                 $response = new BalanceResponse();
                 $response->setBalance($result['amount']);
@@ -129,7 +129,7 @@ class Client implements IClient
 
                 $balanceData = $stmt->fetch();
 
-                if (is_array($balanceData)) {
+                if (is_array($balanceData) && !empty($balanceData)) {
 
                     $balanceId = $balanceData['id'];
                     $balanceAmount = $balanceData['amount'] - $request['amount'];
@@ -227,7 +227,7 @@ class Client implements IClient
 
                 $balanceData = $stmt->fetch();
 
-                if (is_array($balanceData)) {
+                if (is_array($balanceData) && !empty($balanceData)) {
 
                     $balanceId = $balanceData['id'];
                     $balanceAmount = $balanceData['amount'] + $request['amount'];
@@ -327,7 +327,7 @@ class Client implements IClient
 
                 $balanceData = $stmt->fetch();
 
-                if (is_array($balanceData)) {
+                if (is_array($balanceData) && !empty($balanceData)) {
 
                     $balanceId = $balanceData['id'];
 
