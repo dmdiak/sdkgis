@@ -169,14 +169,12 @@ class GisApi
             'lobby_data' => $lobbyData,
         ];
 
-        $postParams = http_build_query($requestParams);
-
         $authHeaders = $this->getAuthHeaders($requestParams);
 
         $integrationData = $this->config['integrationData'];
 
         $url = $integrationData['baseApiUrl'] . '/games/init';
-        $result = $this->sendRequest($authHeaders, $url, 'POST', $postParams);
+        $result = $this->sendRequest($authHeaders, $url, 'POST', $requestParams);
 
         return $result;
     }
@@ -198,14 +196,12 @@ class GisApi
             'language' => $language,
         ];
 
-        $postParams = http_build_query($requestParams);
-
         $authHeaders = $this->getAuthHeaders($requestParams);
 
         $integrationData = $this->config['integrationData'];
 
         $url = $integrationData['baseApiUrl'] . '/games/init-demo';
-        $result = $this->sendRequest($authHeaders, $url, 'POST', $postParams);
+        $result = $this->sendRequest($authHeaders, $url, 'POST', $requestParams);
 
         return $result;
     }
