@@ -2,6 +2,8 @@
 
 namespace SdkGis\MysqlExample;
 
+require_once('exceptions/InsufficientFundsException.php');
+
 use PDO;
 use SdkGis\Interfaces\IClient;
 use SdkGis\Responses\BalanceResponse;
@@ -9,6 +11,7 @@ use SdkGis\Responses\BetResponse;
 use SdkGis\Responses\WinResponse;
 use SdkGis\Responses\RefundResponse;
 use SdkGis\Responses\ErrorResponse;
+use SdkGis\MysqlExample\Exceptions\InsufficientFundsException;
 
 /**
  * Class Client
@@ -134,6 +137,10 @@ class Client implements IClient
                     $balanceId = $balanceData['id'];
                     $balanceAmount = $balanceData['amount'] - $request['amount'];
 
+                    if ($balanceAmount < 0) {
+                        throw new InsufficientFundsException();
+                    }
+
                     $query = "UPDATE casino.balances SET amount = :amount WHERE id = :id";
                     $stmt = $this->db->prepare($query);
                     $stmt->execute([
@@ -184,6 +191,10 @@ class Client implements IClient
                 $response->setBalance($balanceAmount)->setTransactionId($transactionId);
 
             }
+
+        } catch (InsufficientFundsException $e) {
+
+            $response = $this->getErrorResponse('INSUFFICIENT_FUNDS', 'Not enough money to continue playing');
 
         } catch (\Exception $e) {
 
