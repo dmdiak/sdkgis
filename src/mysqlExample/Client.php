@@ -141,6 +141,8 @@ class Client implements IClient
                         throw new InsufficientFundsException();
                     }
 
+                    $this->db->beginTransaction();
+
                     $query = "UPDATE casino.balances SET amount = :amount WHERE id = :id";
                     $stmt = $this->db->prepare($query);
                     $stmt->execute([
@@ -166,6 +168,8 @@ class Client implements IClient
                     ]);
 
                     $transactionId = $this->db->lastInsertId();
+
+                    $this->db->commit();
 
                     $response = new BetResponse();
                     $response->setBalance($balanceAmount)->setTransactionId($transactionId);
@@ -243,6 +247,8 @@ class Client implements IClient
                     $balanceId = $balanceData['id'];
                     $balanceAmount = $balanceData['amount'] + $request['amount'];
 
+                    $this->db->beginTransaction();
+
                     $query = "UPDATE casino.balances SET amount = :amount WHERE id = :id";
                     $stmt = $this->db->prepare($query);
                     $stmt->execute([
@@ -268,6 +274,8 @@ class Client implements IClient
                     ]);
 
                     $transactionId = $this->db->lastInsertId();
+
+                    $this->db->commit();
 
                     $response = new WinResponse();
                     $response->setBalance($balanceAmount)->setTransactionId($transactionId);
@@ -358,6 +366,8 @@ class Client implements IClient
 
                         $balanceAmount = $balanceData['amount'] + $transactionAmount;
 
+                        $this->db->beginTransaction();
+
                         $query = "UPDATE casino.balances SET amount = :amount WHERE id = :id";
                         $stmt = $this->db->prepare($query);
                         $stmt->execute([
@@ -384,10 +394,14 @@ class Client implements IClient
 
                         $transactionId = $this->db->lastInsertId();
 
+                        $this->db->commit();
+
                         $response = new RefundResponse();
                         $response->setBalance($balanceAmount)->setTransactionId($transactionId);
 
                     } else {
+
+                        $this->db->beginTransaction();
 
                         $query = "INSERT INTO casino.transactions
                                   (player_id, balance_id, game_uuid, session_id, transaction_id, action, amount, currency, bet_transaction_id, is_correct)
@@ -407,6 +421,9 @@ class Client implements IClient
                         ]);
 
                         $transactionId = $this->db->lastInsertId();
+
+                        $this->db->commit();
+
                         $balanceAmount = $balanceData['amount'];
 
                         $response = new RefundResponse();
