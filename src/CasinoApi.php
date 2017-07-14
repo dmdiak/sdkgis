@@ -179,28 +179,31 @@ class CasinoApi
     }
 
     /**
-     * Check Authorization headers.
+     * Check request headers and method.
      */
-    private function checkAuthHeaders()
+    private function checkRequest()
     {
-        if (!isset($_SERVER['HTTP_X_MERCHANT_ID'])) {
-            $errorCode = 'INTERNAL_ERROR';
+        $errorCode = 'INTERNAL_ERROR';
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $errorDescription = 'All calls from GIS to integrator will be done via POST';
+            $this->errorResponse($errorCode, $errorDescription);
+        } elseif ($_SERVER['CONTENT_TYPE'] !== 'application/x-www-form-urlencoded') {
+            $errorDescription = 'All calls from GIS to integrator will be passed with application/x-www-form-urlencoded content type';
+            $this->errorResponse($errorCode, $errorDescription);
+        } elseif (!isset($_SERVER['HTTP_X_MERCHANT_ID'])) {
             $errorDescription = 'X-Merchant-Id header is missing';
             $this->errorResponse($errorCode, $errorDescription);
         } elseif (!isset($_SERVER['HTTP_X_TIMESTAMP'])) {
-            $errorCode = 'INTERNAL_ERROR';
             $errorDescription = 'X-Timestamp header is missing';
             $this->errorResponse($errorCode, $errorDescription);
         } elseif (!isset($_SERVER['HTTP_X_NONCE'])) {
-            $errorCode = 'INTERNAL_ERROR';
             $errorDescription = 'X-Nonce header is missing';
             $this->errorResponse($errorCode, $errorDescription);
         } elseif (!isset($_SERVER['HTTP_X_SIGN'])) {
-            $errorCode = 'INTERNAL_ERROR';
             $errorDescription = 'X-Sign header is missing';
             $this->errorResponse($errorCode, $errorDescription);
         } elseif (preg_match('/\D+/', $_SERVER['HTTP_X_TIMESTAMP'])) {
-            $errorCode = 'INTERNAL_ERROR';
             $errorDescription = 'X-Timestamp header isn\'t correct';
             $this->errorResponse($errorCode, $errorDescription);
         }
@@ -209,11 +212,9 @@ class CasinoApi
         $time = time();
 
         if ($gisTime > $time) {
-            $errorCode = 'INTERNAL_ERROR';
             $errorDescription = 'X-Timestamp header isn\'t correct';
             $this->errorResponse($errorCode, $errorDescription);
         } elseif ($gisTime <= ($time - 30)) {
-            $errorCode = 'INTERNAL_ERROR';
             $errorDescription = 'Request is expired';
             $this->errorResponse($errorCode, $errorDescription);
         }
@@ -252,58 +253,36 @@ class CasinoApi
      */
     public function processRequest()
     {
-        $requestMethod = $_SERVER['REQUEST_METHOD'];
-        if ($requestMethod === 'POST') {
+        $this->checkRequest();
+        $this->checkXSign();
 
-            $contentType = $_SERVER['CONTENT_TYPE'];
-            if ($contentType === 'application/x-www-form-urlencoded') {
+        $request = $_REQUEST;
+        $action = $request['action'];
+        unset($request['action']);
 
-                $this->checkAuthHeaders();
-                $this->checkXSign();
+        switch ($action) {
 
-                $request = $_REQUEST;
-                $action = $request['action'];
-                unset($request['action']);
+            case 'balance':
+                $this->balance($request);
+                break;
 
-                switch ($action) {
+            case 'bet':
+                $this->bet($request);
+                break;
 
-                    case 'balance':
-                        $this->balance($request);
-                        break;
+            case 'win':
+                $this->win($request);
+                break;
 
-                    case 'bet':
-                        $this->bet($request);
-                        break;
+            case 'refund':
+                $this->refund($request);
+                break;
 
-                    case 'win':
-                        $this->win($request);
-                        break;
-
-                    case 'refund':
-                        $this->refund($request);
-                        break;
-
-                    default:
-                        $errorCode = 'INTERNAL_ERROR';
-                        $errorDescription = 'Action ' . $action . ' not found';
-                        $this->errorResponse($errorCode, $errorDescription);
-                        break;
-
-                }
-
-            } else {
-
+            default:
                 $errorCode = 'INTERNAL_ERROR';
-                $errorDescription = 'All calls from GIS to integrator will be passed with application/x-www-form-urlencoded content type';
+                $errorDescription = 'Action ' . $action . ' not found';
                 $this->errorResponse($errorCode, $errorDescription);
-
-            }
-
-        } else {
-
-            $errorCode = 'INTERNAL_ERROR';
-            $errorDescription = 'All calls from GIS to integrator will be done via POST';
-            $this->errorResponse($errorCode, $errorDescription);
+                break;
 
         }
     }
