@@ -1,13 +1,13 @@
 <?php
 
-namespace SdkGis;
+namespace GisBundle\Models;
 
-use SdkGis\Responses\Response;
-use SdkGis\Interfaces\IClient;
+use GisBundle\Responses\Response;
+use GisBundle\Interfaces\IClient;
 
 /**
  * Class CasinoApi
- * @package SdkGis
+ * @package GisBundle\Models
  */
 class CasinoApi
 {
@@ -29,7 +29,7 @@ class CasinoApi
     public function __construct(IClient $client)
     {
         $this->client = $client;
-        $this->config = include(__DIR__ . '/config/config.php');
+        $this->config = include(__DIR__ . '/../config/config.php');
     }
 
     /**

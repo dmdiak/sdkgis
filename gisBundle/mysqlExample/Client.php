@@ -1,21 +1,21 @@
 <?php
 
-namespace SdkGis\MysqlExample;
+namespace GisBundle\MysqlExample;
 
 require_once('exceptions/InsufficientFundsException.php');
 
 use PDO;
-use SdkGis\Interfaces\IClient;
-use SdkGis\Responses\BalanceResponse;
-use SdkGis\Responses\BetResponse;
-use SdkGis\Responses\WinResponse;
-use SdkGis\Responses\RefundResponse;
-use SdkGis\Responses\ErrorResponse;
-use SdkGis\MysqlExample\Exceptions\InsufficientFundsException;
+use GisBundle\Interfaces\IClient;
+use GisBundle\Responses\BalanceResponse;
+use GisBundle\Responses\BetResponse;
+use GisBundle\Responses\WinResponse;
+use GisBundle\Responses\RefundResponse;
+use GisBundle\Responses\ErrorResponse;
+use GisBundle\MysqlExample\Exceptions\InsufficientFundsException;
 
 /**
  * Class Client
- * @package SdkGis\MysqlExample
+ * @package GisBundle\MysqlExample
  */
 class Client implements IClient
 {

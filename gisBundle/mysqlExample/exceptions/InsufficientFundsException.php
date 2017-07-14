@@ -1,6 +1,6 @@
 <?php
 
-namespace SdkGis\MysqlExample\Exceptions;
+namespace GisBundle\MysqlExample\Exceptions;
 
 class InsufficientFundsException extends \Exception
 {

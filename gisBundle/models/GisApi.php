@@ -1,10 +1,10 @@
 <?php
 
-namespace SdkGis;
+namespace GisBundle\Models;
 
 /**
  * Class GisApi
- * @package SdkGis
+ * @package SdkGis\Models
  */
 class GisApi
 {
@@ -19,7 +19,7 @@ class GisApi
      */
     public function __construct()
     {
-        $this->config = include(__DIR__ . '/config/config.php');
+        $this->config = include(__DIR__ . '/../config/config.php');
     }
 
     /**

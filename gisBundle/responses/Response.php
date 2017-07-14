@@ -1,10 +1,10 @@
 <?php
 
-namespace SdkGis\Responses;
+namespace GisBundle\Responses;
 
 /**
  * Class Response
- * @package SdkGis\Responses
+ * @package GisBundle\Responses
  */
 abstract class Response
 {

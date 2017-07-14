@@ -1,10 +1,10 @@
 <?php
 
-namespace SdkGis\Responses;
+namespace GisBundle\Responses;
 
 /**
  * Class BalanceResponse
- * @package SdkGis\Responses
+ * @package GisBundle\Responses
  */
 class BalanceResponse extends Response
 {

@@ -1,16 +1,16 @@
 <?php
 
-namespace SdkGis\Interfaces;
+namespace GisBundle\Interfaces;
 
-use SdkGis\Responses\BalanceResponse;
-use SdkGis\Responses\BetResponse;
-use SdkGis\Responses\WinResponse;
-use SdkGis\Responses\RefundResponse;
-use SdkGis\Responses\ErrorResponse;
+use GisBundle\Responses\BalanceResponse;
+use GisBundle\Responses\BetResponse;
+use GisBundle\Responses\WinResponse;
+use GisBundle\Responses\RefundResponse;
+use GisBundle\Responses\ErrorResponse;
 
 /**
  * Interface IClient
- * @package SdkGis\Interfaces
+ * @package GisBundle\Interfaces
  */
 interface IClient
 {

@@ -1,6 +1,7 @@
 <?php
-
-require_once('src/GisApi.php');
+// TODO: delete it!
+/*
+require_once('gisBundle/GisApi.php');
 
 use SdkGis\GisApi;
 
@@ -11,4 +12,4 @@ $gisApi = new GisApi();
 
 $result = $gisApi->initGame('2dcab0ef68c26aceb2b3f139a44eaad08f1ecdfa', '1', 'player1', 'USD', $sessionId);
 
-echo '<a href="' . $result['url'] . '">GO TO THE GAME!!!</a>';
+echo '<a href="' . $result['url'] . '">GO TO THE GAME!!!</a>';*/
