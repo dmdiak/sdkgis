@@ -6,7 +6,6 @@ use GisBundle\Responses\BalanceResponse;
 use GisBundle\Responses\BetResponse;
 use GisBundle\Responses\WinResponse;
 use GisBundle\Responses\RefundResponse;
-use GisBundle\Responses\ErrorResponse;
 
 /**
  * Interface IClient
@@ -17,26 +16,26 @@ interface IClient
 
     /**
      * @param array $request
-     * @return BalanceResponse|ErrorResponse
+     * @return BalanceResponse
      */
-    public function balance($request);
+    //public function balance($request);
 
     /**
      * @param array $request
-     * @return BetResponse|ErrorResponse
+     * @return BetResponse
      */
-    public function bet($request);
+    //public function bet($request);
 
     /**
      * @param array $request
-     * @return WinResponse|ErrorResponse
+     * @return WinResponse
      */
-    public function win($request);
+    //public function win($request);
 
     /**
      * @param array $request
-     * @return RefundResponse|ErrorResponse
+     * @return RefundResponse
      */
-    public function refund($request);
+    //public function refund($request);
 
 }

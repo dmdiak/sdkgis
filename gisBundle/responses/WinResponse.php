@@ -37,4 +37,16 @@ class WinResponse extends Response
         $this->transaction_id = $transaction_id;
         return $this;
     }
+
+    /**
+     * WinResponse constructor.
+     * @param $balance
+     * @param $transaction_id
+     */
+    public function __construct($balance, $transaction_id)
+    {
+        $this->setBalance($balance);
+        $this->setTransactionId($transaction_id);
+    }
+
 }

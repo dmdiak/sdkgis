@@ -22,4 +22,14 @@ class BalanceResponse extends Response
         $this->balance = $balance;
         return $this;
     }
+
+    /**
+     * BalanceResponse constructor.
+     * @param $balance
+     */
+    public function __construct($balance)
+    {
+        $this->setBalance($balance);
+    }
+
 }

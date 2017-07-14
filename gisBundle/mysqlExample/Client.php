@@ -2,15 +2,12 @@
 
 namespace GisBundle\MysqlExample;
 
-require_once('exceptions/InsufficientFundsException.php');
-
 use PDO;
 use GisBundle\Interfaces\IClient;
 use GisBundle\Responses\BalanceResponse;
 use GisBundle\Responses\BetResponse;
 use GisBundle\Responses\WinResponse;
 use GisBundle\Responses\RefundResponse;
-use GisBundle\Responses\ErrorResponse;
 use GisBundle\MysqlExample\Exceptions\InsufficientFundsException;
 
 /**
@@ -60,7 +57,7 @@ class Client implements IClient
 
     /**
      * @param array $request
-     * @return BalanceResponse|ErrorResponse
+     * @return BalanceResponse
      */
     public function balance($request)
     {
@@ -103,7 +100,7 @@ class Client implements IClient
 
     /**
      * @param array $request
-     * @return BetResponse|ErrorResponse
+     * @return BetResponse
      */
     public function bet($request)
     {
@@ -213,7 +210,7 @@ class Client implements IClient
 
     /**
      * @param array $request
-     * @return ErrorResponse|WinResponse
+     * @return WinResponse
      */
     public function win($request)
     {
@@ -315,7 +312,7 @@ class Client implements IClient
 
     /**
      * @param array $request
-     * @return ErrorResponse|RefundResponse
+     * @return RefundResponse
      */
     public function refund($request)
     {

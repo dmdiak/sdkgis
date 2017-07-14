@@ -2,9 +2,10 @@
 
 namespace GisBundle\Models;
 
+use GisBundle\Exceptions\GisException;
 use GisBundle\Exceptions\InternalErrorException;
+use GisBundle\Interfaces\IPlayer;
 use GisBundle\Responses\Response;
-use GisBundle\Interfaces\IClient;
 
 /**
  * Class CasinoApi
@@ -12,24 +13,31 @@ use GisBundle\Interfaces\IClient;
  */
 class CasinoApi
 {
+    /**
+     * @var array
+     */
+    protected $config;
 
     /**
-     * @var IClient
+     * @var IPlayer;
      */
-    private $client;
+    protected $player;
 
     /**
      * @var array
      */
-    private $config;
+    protected $requiredPostFields = [
+        'balance' => ['action', 'player_id', 'currency'],
+        'bet' => ['action', 'amount', 'currency', 'game_uuid', 'player_id', 'transaction_id', 'session_id', 'type'],
+        'win' => ['action', 'amount', 'currency', 'game_uuid', 'player_id', 'transaction_id', 'session_id', 'type'],
+        'refund' => ['action', 'amount', 'currency', 'game_uuid', 'player_id', 'transaction_id', 'session_id', 'bet_transaction_id'],
+    ];
 
     /**
      * CasinoApi constructor.
-     * @param IClient $client
      */
-    public function __construct(IClient $client)
+    public function __construct()
     {
-        $this->client = $client;
         $this->config = include(__DIR__ . '/../config/config.php');
     }
 
@@ -60,78 +68,24 @@ class CasinoApi
     }
 
     /**
-     * Actual player's balance.
-     * JSON response.
-     * @param array $request
-     */
-    protected function balance($request)
-    {
-        $requiredFields = ['player_id', 'currency'];
-        $this->checkPostFields($request, $requiredFields);
-        $response = $this->client->balance($request);
-        $this->successResponse($response);
-    }
-
-    /**
-     * Player makes a bet.
-     * JSON response.
-     * @param array $request
-     */
-    protected function bet($request)
-    {
-        $requiredFields = ['amount', 'currency', 'game_uuid', 'player_id', 'transaction_id', 'session_id', 'type'];
-        $this->checkPostFields($request, $requiredFields);
-        $response = $this->client->bet($request);
-        $this->successResponse($response);
-    }
-
-    /**
-     * Player wins.
-     * JSON response.
-     * @param array $request
-     */
-    protected function win($request)
-    {
-        $requiredFields = ['amount', 'currency', 'game_uuid', 'player_id', 'transaction_id', 'session_id', 'type'];
-        $this->checkPostFields($request, $requiredFields);
-        $response = $this->client->win($request);
-        $this->successResponse($response);
-    }
-
-    /**
-     * Refund is a cash back in case bet problems.
-     * JSON response.
-     * @param array $request
-     */
-    protected function refund($request)
-    {
-        $requiredFields = ['amount', 'currency', 'game_uuid', 'player_id', 'transaction_id', 'session_id', 'bet_transaction_id'];
-        $this->checkPostFields($request, $requiredFields);
-        $response = $this->client->refund($request);
-        $this->successResponse($response);
-    }
-
-    /**
      * Check POST fields.
-     * @param array $request
-     * @param array $requiredFields
-     * @throws InternalErrorException
+     * @throws GisException
      */
-    protected function checkPostFields($request, $requiredFields)
+    protected function checkPostFields()
     {
-        if (count(array_intersect_key(array_flip($requiredFields), $request)) !== count($requiredFields)) {
+        $required = $this->requiredPostFields;
+        if (count(array_intersect_key(array_flip($required), $_REQUEST)) !== count($required)) {
             throw new InternalErrorException('Required POST fields are missing');
         }
     }
 
     /**
-     * Check request headers and method.
+     * Check request headers.
+     * @throws GisException
      */
-    protected function checkRequest()
+    protected function checkHeaders()
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            throw new InternalErrorException('All calls from GIS to integrator will be done via POST');
-        } elseif ($_SERVER['CONTENT_TYPE'] !== 'application/x-www-form-urlencoded') {
+        if ($_SERVER['CONTENT_TYPE'] !== 'application/x-www-form-urlencoded') {
             throw new InternalErrorException('All calls from GIS to integrator will be passed with application/x-www-form-urlencoded content type');
         }
 
@@ -160,6 +114,7 @@ class CasinoApi
 
     /**
      * X-Sign validation.
+     * @throws GisException
      */
     protected function checkXSign()
     {
@@ -185,33 +140,43 @@ class CasinoApi
     }
 
     /**
-     * Process request from GIS.
+     * Check request from GIS.
+     * @throws GisException
      */
-    public function processRequest()
+    public function checkRequest()
     {
-        $this->checkRequest();
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            throw new InternalErrorException('All calls from GIS to integrator will be done via POST');
+        }
+        $this->checkHeaders();
         $this->checkXSign();
+        $this->checkPostFields();
+    }
 
-        $request = $_REQUEST;
-        $action = $request['action'];
-        unset($request['action']);
-
-        switch ($action) {
+    /**
+     * Process request from GIS.
+     * @param IPlayer $player
+     * @throws GisException
+     */
+    public function processRequest(IPlayer $player)
+    {
+        switch ($_REQUEST['action']) {
             case 'balance':
-                $this->balance($request);
+                $response = $player->getBalanceResponse();
                 break;
             case 'bet':
-                $this->bet($request);
+                $response = $player->getBetResponse();
                 break;
             case 'win':
-                $this->win($request);
+                $response = $player->getWinResponse();
                 break;
             case 'refund':
-                $this->refund($request);
+                $response = $player->getRefundResponse();
                 break;
             default:
-                throw new InternalErrorException('Action ' . $action . ' not found');
+                throw new InternalErrorException('Action ' . $_REQUEST['action'] . ' not found');
         }
+        $this->successResponse($response);
     }
 
 }

@@ -27,7 +27,7 @@ class GisApi
      * @param array $requestParams [optional]
      * @return array
      */
-    private function getAuthHeaders($requestParams = [])
+    protected function getAuthHeaders($requestParams = [])
     {
         $integrationData = $this->config['integrationData'];
 
@@ -55,7 +55,7 @@ class GisApi
      * @param array $postParams [optional]
      * @return array
      */
-    private function sendRequest($authHeaders, $url, $method = 'GET', $postParams = [])
+    protected function sendRequest($authHeaders, $url, $method = 'GET', $postParams = [])
     {
         $gisApiOpt = $this->config['gisApiOpt'];
 
