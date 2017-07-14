@@ -24,7 +24,7 @@ class GisApi
 
     /**
      * Authorization headers calculation.
-     * @param array $requestParams
+     * @param array $requestParams [optional]
      * @return array
      */
     private function getAuthHeaders($requestParams = [])
@@ -51,8 +51,8 @@ class GisApi
      * Send request to GIS.
      * @param array $authHeaders
      * @param string $url
-     * @param string $method
-     * @param array $postParams
+     * @param string $method [optional]
+     * @param array $postParams [optional]
      * @return array
      */
     private function sendRequest($authHeaders, $url, $method = 'GET', $postParams = [])
@@ -95,9 +95,7 @@ class GisApi
     public function getGames()
     {
         $authHeaders = $this->getAuthHeaders();
-
         $integrationData = $this->config['integrationData'];
-
         $url = $integrationData['baseApiUrl'] . '/games';
         $result = $this->sendRequest($authHeaders, $url);
 
@@ -114,17 +112,11 @@ class GisApi
      */
     public function getLobbies($gameUuid, $currency)
     {
-        $requestParams = [
-            'game_uuid' => $gameUuid,
-            'currency' => $currency,
-        ];
+        $requestParams = ['game_uuid' => $gameUuid, 'currency' => $currency];
 
         $requestParamsStr = http_build_query($requestParams);
-
         $authHeaders = $this->getAuthHeaders($requestParams);
-
         $integrationData = $this->config['integrationData'];
-
         $url = $integrationData['baseApiUrl'] . '/games/lobby?' . $requestParamsStr;
         $result = $this->sendRequest($authHeaders, $url);
 
@@ -156,7 +148,8 @@ class GisApi
         $language = null,
         $email = null,
         $lobbyData = null
-    ) {
+    )
+    {
         $requestParams = [
             'game_uuid' => $gameUuid,
             'player_id' => $playerId,
@@ -170,9 +163,7 @@ class GisApi
         ];
 
         $authHeaders = $this->getAuthHeaders($requestParams);
-
         $integrationData = $this->config['integrationData'];
-
         $url = $integrationData['baseApiUrl'] . '/games/init';
         $result = $this->sendRequest($authHeaders, $url, 'POST', $requestParams);
 
@@ -190,16 +181,10 @@ class GisApi
      */
     public function initDemoGame($gameUuid, $returnUrl = null, $language = null)
     {
-        $requestParams = [
-            'game_uuid' => $gameUuid,
-            'return_url' => $returnUrl,
-            'language' => $language,
-        ];
+        $requestParams = ['game_uuid' => $gameUuid, 'return_url' => $returnUrl, 'language' => $language];
 
         $authHeaders = $this->getAuthHeaders($requestParams);
-
         $integrationData = $this->config['integrationData'];
-
         $url = $integrationData['baseApiUrl'] . '/games/init-demo';
         $result = $this->sendRequest($authHeaders, $url, 'POST', $requestParams);
 
@@ -215,9 +200,7 @@ class GisApi
     public function getLimits()
     {
         $authHeaders = $this->getAuthHeaders();
-
         $integrationData = $this->config['integrationData'];
-
         $url = $integrationData['baseApiUrl'] . '/limits';
         $result = $this->sendRequest($authHeaders, $url);
 
@@ -233,9 +216,7 @@ class GisApi
     public function getJackpots()
     {
         $authHeaders = $this->getAuthHeaders();
-
         $integrationData = $this->config['integrationData'];
-
         $url = $integrationData['baseApiUrl'] . '/jackpots';
         $result = $this->sendRequest($authHeaders, $url);
 
@@ -251,9 +232,7 @@ class GisApi
     public function selfValidate()
     {
         $authHeaders = $this->getAuthHeaders();
-
         $integrationData = $this->config['integrationData'];
-
         $url = $integrationData['baseApiUrl'] . '/self-validate';
         $result = $this->sendRequest($authHeaders, $url, 'POST');
 

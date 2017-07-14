@@ -23,6 +23,13 @@ class GisException extends \Exception
         return $this->gisErrorCode;
     }
 
+    /**
+     * GisException constructor.
+     * @param string $message [optional]
+     * @param int $code [optional]
+     * @param Throwable|null $previous [optional]
+     * @param string $gisErrorCode [optional]
+     */
     public function __construct($message = "", $code = 0, Throwable $previous = null, $gisErrorCode = "")
     {
         $this->gisErrorCode = $gisErrorCode;

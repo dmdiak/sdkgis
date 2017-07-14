@@ -10,6 +10,13 @@ use Throwable;
  */
 class InsufficientFundsException extends GisException
 {
+    /**
+     * InsufficientFundsException constructor.
+     * @param string $message [optional]
+     * @param int $code [optional]
+     * @param Throwable|null $previous [optional]
+     * @param string $gisErrorCode [optional]
+     */
     public function __construct(
         $message = "Not enough money to continue playing",
         $code = 0,

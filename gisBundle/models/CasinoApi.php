@@ -185,7 +185,7 @@ class CasinoApi
     }
 
     /**
-     * Process request from GIS
+     * Process request from GIS.
      */
     public function processRequest()
     {
