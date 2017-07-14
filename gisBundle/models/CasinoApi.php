@@ -2,6 +2,7 @@
 
 namespace GisBundle\Models;
 
+use GisBundle\Exceptions\InternalErrorException;
 use GisBundle\Responses\Response;
 use GisBundle\Interfaces\IClient;
 
@@ -37,7 +38,7 @@ class CasinoApi
      * @param string $errorCode
      * @param string $errorDescription
      */
-    private function errorResponse($errorCode, $errorDescription)
+    public function errorResponse($errorCode, $errorDescription)
     {
         header('Content-type: application/json; charset=UTF-8');
         $errorData = [
@@ -48,10 +49,10 @@ class CasinoApi
     }
 
     /**
-     * JSON response.
+     * Success JSON response.
      * @param Response $response
      */
-    private function response($response)
+    protected function successResponse($response)
     {
         header('Content-type: application/json; charset=UTF-8');
         $data = get_object_vars($response);
@@ -63,26 +64,12 @@ class CasinoApi
      * JSON response.
      * @param array $request
      */
-    private function balance($request)
+    protected function balance($request)
     {
-        $requiredFields = [
-            'player_id',
-            'currency',
-        ];
-
-        if (count(array_intersect_key(array_flip($requiredFields), $request)) === count($requiredFields)) {
-
-            $response = $this->client->balance($request);
-            $this->response($response);
-
-        } else {
-
-            $errorCode = 'INTERNAL_ERROR';
-            $errorDescription = 'Required fields missing';
-            $this->errorResponse($errorCode, $errorDescription);
-
-        }
-
+        $requiredFields = ['player_id', 'currency'];
+        $this->checkPostFields($request, $requiredFields);
+        $response = $this->client->balance($request);
+        $this->successResponse($response);
     }
 
     /**
@@ -90,30 +77,12 @@ class CasinoApi
      * JSON response.
      * @param array $request
      */
-    private function bet($request)
+    protected function bet($request)
     {
-        $requiredFields = [
-            'amount',
-            'currency',
-            'game_uuid',
-            'player_id',
-            'transaction_id',
-            'session_id',
-            'type',
-        ];
-
-        if (count(array_intersect_key(array_flip($requiredFields), $request)) === count($requiredFields)) {
-
-            $response = $this->client->bet($request);
-            $this->response($response);
-
-        } else {
-
-            $errorCode = 'INTERNAL_ERROR';
-            $errorDescription = 'Required fields missing';
-            $this->errorResponse($errorCode, $errorDescription);
-
-        }
+        $requiredFields = ['amount', 'currency', 'game_uuid', 'player_id', 'transaction_id', 'session_id', 'type'];
+        $this->checkPostFields($request, $requiredFields);
+        $response = $this->client->bet($request);
+        $this->successResponse($response);
     }
 
     /**
@@ -121,30 +90,12 @@ class CasinoApi
      * JSON response.
      * @param array $request
      */
-    private function win($request)
+    protected function win($request)
     {
-        $requiredFields = [
-            'amount',
-            'currency',
-            'game_uuid',
-            'player_id',
-            'transaction_id',
-            'session_id',
-            'type',
-        ];
-
-        if (count(array_intersect_key(array_flip($requiredFields), $request)) === count($requiredFields)) {
-
-            $response = $this->client->win($request);
-            $this->response($response);
-
-        } else {
-
-            $errorCode = 'INTERNAL_ERROR';
-            $errorDescription = 'Required fields missing';
-            $this->errorResponse($errorCode, $errorDescription);
-
-        }
+        $requiredFields = ['amount', 'currency', 'game_uuid', 'player_id', 'transaction_id', 'session_id', 'type'];
+        $this->checkPostFields($request, $requiredFields);
+        $response = $this->client->win($request);
+        $this->successResponse($response);
     }
 
     /**
@@ -152,78 +103,65 @@ class CasinoApi
      * JSON response.
      * @param array $request
      */
-    private function refund($request)
+    protected function refund($request)
     {
-        $requiredFields = [
-            'amount',
-            'currency',
-            'game_uuid',
-            'player_id',
-            'transaction_id',
-            'session_id',
-            'bet_transaction_id',
-        ];
+        $requiredFields = ['amount', 'currency', 'game_uuid', 'player_id', 'transaction_id', 'session_id', 'bet_transaction_id'];
+        $this->checkPostFields($request, $requiredFields);
+        $response = $this->client->refund($request);
+        $this->successResponse($response);
+    }
 
-        if (count(array_intersect_key(array_flip($requiredFields), $request)) === count($requiredFields)) {
-
-            $response = $this->client->refund($request);
-            $this->response($response);
-
-        } else {
-
-            $errorCode = 'INTERNAL_ERROR';
-            $errorDescription = 'Required fields missing';
-            $this->errorResponse($errorCode, $errorDescription);
-
+    /**
+     * Check POST fields.
+     * @param array $request
+     * @param array $requiredFields
+     * @throws InternalErrorException
+     */
+    protected function checkPostFields($request, $requiredFields)
+    {
+        if (count(array_intersect_key(array_flip($requiredFields), $request)) !== count($requiredFields)) {
+            throw new InternalErrorException('Required POST fields are missing');
         }
     }
 
     /**
      * Check request headers and method.
      */
-    private function checkRequest()
+    protected function checkRequest()
     {
-        $errorCode = 'INTERNAL_ERROR';
-
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $errorDescription = 'All calls from GIS to integrator will be done via POST';
-            $this->errorResponse($errorCode, $errorDescription);
+            throw new InternalErrorException('All calls from GIS to integrator will be done via POST');
         } elseif ($_SERVER['CONTENT_TYPE'] !== 'application/x-www-form-urlencoded') {
-            $errorDescription = 'All calls from GIS to integrator will be passed with application/x-www-form-urlencoded content type';
-            $this->errorResponse($errorCode, $errorDescription);
-        } elseif (!isset($_SERVER['HTTP_X_MERCHANT_ID'])) {
-            $errorDescription = 'X-Merchant-Id header is missing';
-            $this->errorResponse($errorCode, $errorDescription);
-        } elseif (!isset($_SERVER['HTTP_X_TIMESTAMP'])) {
-            $errorDescription = 'X-Timestamp header is missing';
-            $this->errorResponse($errorCode, $errorDescription);
-        } elseif (!isset($_SERVER['HTTP_X_NONCE'])) {
-            $errorDescription = 'X-Nonce header is missing';
-            $this->errorResponse($errorCode, $errorDescription);
-        } elseif (!isset($_SERVER['HTTP_X_SIGN'])) {
-            $errorDescription = 'X-Sign header is missing';
-            $this->errorResponse($errorCode, $errorDescription);
-        } elseif (preg_match('/\D+/', $_SERVER['HTTP_X_TIMESTAMP'])) {
-            $errorDescription = 'X-Timestamp header isn\'t correct';
-            $this->errorResponse($errorCode, $errorDescription);
+            throw new InternalErrorException('All calls from GIS to integrator will be passed with application/x-www-form-urlencoded content type');
+        }
+
+        $requiredAuthHeaders = ['HTTP_X_MERCHANT_ID', 'HTTP_X_TIMESTAMP', 'HTTP_X_NONCE', 'HTTP_X_SIGN'];
+
+        foreach ($requiredAuthHeaders as $headerName) {
+            if (!isset($_SERVER[$headerName])) {
+                $errMessage = preg_replace(['/HTTP\_/', '\_'], ['', '\-'], $headerName) . ' header is missing';
+                throw new InternalErrorException($errMessage);
+            }
+        }
+
+        if (preg_match('/\D+/', $_SERVER['HTTP_X_TIMESTAMP'])) {
+            throw new InternalErrorException('X-Timestamp header isn\'t correct');
         }
 
         $gisTime = $_SERVER['HTTP_X_TIMESTAMP'];
         $time = time();
 
         if ($gisTime > $time) {
-            $errorDescription = 'X-Timestamp header isn\'t correct';
-            $this->errorResponse($errorCode, $errorDescription);
+            throw new InternalErrorException('X-Timestamp header isn\'t correct');
         } elseif ($gisTime <= ($time - 30)) {
-            $errorDescription = 'Request is expired';
-            $this->errorResponse($errorCode, $errorDescription);
+            throw new InternalErrorException('Request is expired');
         }
     }
 
     /**
      * X-Sign validation.
      */
-    private function checkXSign()
+    protected function checkXSign()
     {
         $merchantKey = $this->config['integrationData']['merchantKey'];
 
@@ -242,9 +180,7 @@ class CasinoApi
         $expectedSign = hash_hmac('sha1', $hashString, $merchantKey);
 
         if ($xSign !== $expectedSign) {
-            $errorCode = 'INTERNAL_ERROR';
-            $errorDescription = 'X-Sign header is wrong';
-            $this->errorResponse($errorCode, $errorDescription);
+            throw new InternalErrorException('X-Sign header is wrong');
         }
     }
 
@@ -261,29 +197,20 @@ class CasinoApi
         unset($request['action']);
 
         switch ($action) {
-
             case 'balance':
                 $this->balance($request);
                 break;
-
             case 'bet':
                 $this->bet($request);
                 break;
-
             case 'win':
                 $this->win($request);
                 break;
-
             case 'refund':
                 $this->refund($request);
                 break;
-
             default:
-                $errorCode = 'INTERNAL_ERROR';
-                $errorDescription = 'Action ' . $action . ' not found';
-                $this->errorResponse($errorCode, $errorDescription);
-                break;
-
+                throw new InternalErrorException('Action ' . $action . ' not found');
         }
     }
 

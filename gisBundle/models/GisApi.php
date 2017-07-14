@@ -4,7 +4,7 @@ namespace GisBundle\Models;
 
 /**
  * Class GisApi
- * @package SdkGis\Models
+ * @package GisBundle\Models
  */
 class GisApi
 {
