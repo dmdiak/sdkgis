@@ -8,5 +8,5 @@ namespace GisBundle\Interfaces;
  */
 interface ITransaction
 {
-
+    //TODO
 }

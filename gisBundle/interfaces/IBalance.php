@@ -2,7 +2,6 @@
 
 namespace GisBundle\Interfaces;
 
-
 /**
  * Interface IBalance
  * @package GisBundle\Interfaces
@@ -53,5 +52,9 @@ interface IBalance
      * @return IBalance
      */
     public function setCurrency($currency);
+
+    public function increaseBalance($amount);
+
+    public function decreaseBalance($amount);
 
 }

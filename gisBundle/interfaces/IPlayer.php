@@ -13,6 +13,16 @@ use GisBundle\Responses\RefundResponse;
  */
 interface IPlayer
 {
+    /**
+     * @return int|string
+     */
+    public function getId();
+
+    /**
+     * @param int|string $id
+     * @return IPlayer
+     */
+    public function setId($id);
 
     /**
      * @return IBalance
@@ -24,6 +34,17 @@ interface IPlayer
      * @return IPlayer
      */
     public function setBalance(IBalance $balance);
+
+    /**
+     * @return ITransaction
+     */
+    public function getTransaction();
+
+    /**
+     * @param ITransaction
+     * @return IPlayer
+     */
+    public function setTransaction(ITransaction $transaction);
 
     /**
      * @return BalanceResponse
