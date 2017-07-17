@@ -3,12 +3,15 @@
 namespace GisBundle\MysqlExample;
 
 use GisBundle\Interfaces\IBalance;
+use GisBundle\Exceptions\GisException;
+use GisBundle\Exceptions\InternalErrorException;
+use GisBundle\Exceptions\InsufficientFundsException;
 
 /**
  * Class Balance
  * @package GisBundle\MysqlExample
  */
-class Balance implements IBalance
+class Balance extends StorageModel implements IBalance
 {
     /**
      * @var int|string
@@ -104,14 +107,81 @@ class Balance implements IBalance
 
     /**
      * Balance constructor.
-     * @param array $balanceData
      */
-    public function __construct(array $balanceData)
+    public function __construct()
     {
-        $this->setId($balanceData['id']);
-        $this->setId($balanceData['player_id']);
-        $this->setId($balanceData['amount']);
-        $this->setId($balanceData['currency']);
+        parent::__construct();
     }
 
+    /**
+     * Set Balance if storage balance data exists.
+     * @param string $playerId
+     * @param string $currency
+     * @throws GisException
+     */
+    public function setIfBalanceExists($playerId, $currency)
+    {
+        $balanceData = $this->getStorageBalanceData($playerId, $currency);
+        if (is_array($balanceData) && !empty($balanceData)) {
+            $this->setAllData($balanceData);
+        } else {
+            throw new InternalErrorException('Balance not found');
+        }
+    }
+
+    /**
+     * Set all object's properties.
+     * @param array $balanceData
+     */
+    public function setAllData($balanceData)
+    {
+        $this->setId($balanceData['id']);
+        $this->setPlayerId($balanceData['player_id']);
+        $this->setAmount($balanceData['amount']);
+        $this->setCurrency($balanceData['currency']);
+    }
+
+    /**
+     * Get Balance data from storage by 'player_id' and 'currency'.
+     * @param string $playerId
+     * @param string $currency
+     * @return mixed
+     */
+    public function getStorageBalanceData($playerId, $currency)
+    {
+        $query = "SELECT amount FROM casino.balances WHERE player_id = :player_id AND currency = :currency";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute(['player_id' => $playerId, 'currency' => $currency]);
+        $balanceData = $stmt->fetch();
+
+        return $balanceData;
+    }
+
+    public function checkFundsForBet($balance, $bet)
+    {
+        if ($balance < $bet) {
+            throw new InsufficientFundsException();
+        }
+    }
+
+    public function increaseBalance($amount)
+    {
+        $query = "UPDATE casino.balances SET amount = amount + :amount WHERE id = :id";
+        $stmt = $this->db->prepare($query);
+        $isSuccess = $stmt->execute(['amount' => $amount, 'id' => $this->getId()]);
+        if ($isSuccess === true) {
+            $this->setIfBalanceExists($this->getPlayerId(), $this->getCurrency());
+        }
+    }
+
+    public function decreaseBalance($amount)
+    {
+        $this->checkFundsForBet($this->getAmount(), $amount);
+        $query = "UPDATE casino.balances SET amount = amount - :amount WHERE id = :id";
+        $stmt = $this->db->prepare($query);
+        $isSuccess = $stmt->execute(['amount' => $amount, 'id' => $this->getId()]);
+        if ($isSuccess === true) {
+            $this->setIfBalanceExists($this->getPlayerId(), $this->getCurrency());
+        }
+    }
 }

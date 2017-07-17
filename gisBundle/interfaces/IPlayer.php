@@ -3,6 +3,9 @@
 namespace GisBundle\Interfaces;
 
 use GisBundle\Responses\BalanceResponse;
+use GisBundle\Responses\BetResponse;
+use GisBundle\Responses\WinResponse;
+use GisBundle\Responses\RefundResponse;
 
 /**
  * Interface IPlayer
@@ -20,11 +23,26 @@ interface IPlayer
      * @param IBalance
      * @return IPlayer
      */
-    public function setBalance($balance);
+    public function setBalance(IBalance $balance);
 
     /**
      * @return BalanceResponse
      */
     public function getBalanceResponse();
+
+    /**
+     * @return BetResponse
+     */
+    public function getBetResponse();
+
+    /**
+     * @return WinResponse
+     */
+    public function getWinResponse();
+
+    /**
+     * @return RefundResponse
+     */
+    public function getRefundResponse();
 
 }
